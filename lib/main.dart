@@ -10,7 +10,7 @@ import 'audio/sequencer.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Pre-load audio
-  await AudioEngine().loadAssets();
+  await AudioEngine().loadBaseAssets();
   runApp(const SalsaMixerApp());
 }
 
@@ -63,7 +63,7 @@ class SalsaMixerScreen extends StatefulWidget {
 
 class _SalsaMixerScreenState extends State<SalsaMixerScreen> {
   // Estados de ejemplo para la UI
-  String _currentRhythm = 'Salsa Dura';
+  String _currentLanguage = 'es';
   double _currentBPM = 180;
   bool _isPlaying = false;
   Map<String, int> _instrumentVolumes = {
@@ -98,6 +98,7 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen> {
     );
     // Sync initial state
     _sequencer.setBpm(_currentBPM);
+    _sequencer.setLanguage(_currentLanguage);
     _sequencer.updateInstrumentVolumes(_instrumentVolumes);
     _sequencer.updateVoicePattern(_voiceStates);
     _sequencer.updateVoiceMute(_isVoiceMuted);
@@ -130,7 +131,7 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen> {
               TempoControlCard(
                 bpm: _currentBPM,
                 isPlaying: _isPlaying,
-                currentRhythm: _currentRhythm,
+                currentLanguage: _currentLanguage,
                 onPlayPause: () {
                   setState(() {
                     _isPlaying = !_isPlaying;
@@ -142,10 +143,17 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen> {
                   });
                 },
                 onBpmChanged: (val) {
-                  setState(() => _currentBPM = val);
-                  _sequencer.setBpm(val);
+                  // Clamp to prevent slider crash
+                  final clampedBpm = val.clamp(60.0, 240.0);
+                  setState(() => _currentBPM = clampedBpm);
+                  _sequencer.setBpm(clampedBpm);
                 },
-                onRhythmChanged: (val) => setState(() => _currentRhythm = val),
+                onLanguageChanged: (val) {
+                  setState(() => _currentLanguage = val);
+                  // Lazy load assets for new language
+                  AudioEngine().loadLanguageAssets(val);
+                  _sequencer.setLanguage(val);
+                },
               ),
 
               const SizedBox(height: 30),

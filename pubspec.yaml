@@ -63,6 +63,8 @@ flutter:
   assets:
     - assets/audio/instrumentos/
     - assets/audio/numeros_es/
+    - assets/audio/numeros_en/
+    - assets/audio/numeros_fr/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -5,23 +5,30 @@ import '../theme/app_colors.dart';
 class TempoControlCard extends StatelessWidget {
   final double bpm;
   final bool isPlaying;
-  final String currentRhythm;
+  final String currentLanguage;
   final VoidCallback onPlayPause;
   final ValueChanged<double> onBpmChanged;
-  final ValueChanged<String> onRhythmChanged;
+  final ValueChanged<String> onLanguageChanged;
 
   const TempoControlCard({
     super.key,
     required this.bpm,
     required this.isPlaying,
-    required this.currentRhythm,
+    required this.currentLanguage,
     required this.onPlayPause,
     required this.onBpmChanged,
-    required this.onRhythmChanged,
+    required this.onLanguageChanged,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Map language codes to display names
+    final languageDisplay = {
+      'es': 'Español 🇲🇽',
+      'en': 'Inglés 🇺🇸',
+      'fr': 'Francés 🇫🇷',
+    };
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
@@ -30,7 +37,7 @@ class TempoControlCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Fila Superior: BPM Text, Ritmo y Botón Play
+          // Fila Superior: BPM Text, Idioma y Botón Play
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -74,35 +81,28 @@ class TempoControlCard extends StatelessWidget {
               ),
               Row(
                 children: [
-                  // Ritmo Dropdown (Compacto)
+                  // Idioma Dropdown (Compacto)
                   PopupMenuButton<String>(
-                    onSelected: onRhythmChanged,
+                    onSelected: onLanguageChanged,
                     offset: const Offset(0, 40),
                     color: AppColors.cardBackground,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    itemBuilder: (context) =>
-                        [
-                              'Salsa Dura',
-                              'On 2',
-                              'Bachata',
-                              'Merengue',
-                              'Guaguancó',
-                            ]
-                            .map(
-                              (rhythm) => PopupMenuItem(
-                                value: rhythm,
-                                child: Text(
-                                  rhythm,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: AppColors.textPrimary,
-                                  ),
-                                ),
+                    itemBuilder: (context) => languageDisplay.entries
+                        .map(
+                          (entry) => PopupMenuItem(
+                            value: entry.key,
+                            child: Text(
+                              entry.value,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: AppColors.textPrimary,
                               ),
-                            )
-                            .toList(),
+                            ),
+                          ),
+                        )
+                        .toList(),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
@@ -116,13 +116,13 @@ class TempoControlCard extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Icon(
-                            Icons.music_note_rounded,
+                            Icons.language_rounded,
                             color: AppColors.primaryOrange,
                             size: 16,
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            currentRhythm,
+                            languageDisplay[currentLanguage] ?? 'Español 🇲🇽',
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,

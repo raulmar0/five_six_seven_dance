@@ -40,7 +40,10 @@ class AudioEngine {
     }
   }
 
-  Future<void> loadAssets() async {
+  // Track loaded languages to avoid reloading
+  final Set<String> _loadedLanguages = {};
+
+  Future<void> loadBaseAssets() async {
     if (!_isInitialized) await initialize();
 
     final assets = {
@@ -53,28 +56,70 @@ class AudioEngine {
       'Cowbell': 'assets/audio/instrumentos/cowbell-latin-hit(1).wav',
       'Bass': 'assets/audio/instrumentos/bass(1).wav',
 
-      // Voice (1-8)
-      '1': 'assets/audio/numeros_es/es_1.wav',
-      '2': 'assets/audio/numeros_es/es_2.wav',
-      '3': 'assets/audio/numeros_es/es_3.wav',
-      '4': 'assets/audio/numeros_es/es_4.wav',
-      '5': 'assets/audio/numeros_es/es_5.wav',
-      '6': 'assets/audio/numeros_es/es_6.wav',
-      '7': 'assets/audio/numeros_es/es_7.wav',
-      '8': 'assets/audio/numeros_es/es_8.wav',
+      // Default Language (Spanish)
+      'es_1': 'assets/audio/numeros_es/es_1.wav',
+      'es_2': 'assets/audio/numeros_es/es_2.wav',
+      'es_3': 'assets/audio/numeros_es/es_3.wav',
+      'es_4': 'assets/audio/numeros_es/es_4.wav',
+      'es_5': 'assets/audio/numeros_es/es_5.wav',
+      'es_6': 'assets/audio/numeros_es/es_6.wav',
+      'es_7': 'assets/audio/numeros_es/es_7.wav',
+      'es_8': 'assets/audio/numeros_es/es_8.wav',
     };
 
+    await _loadBatch(assets);
+    _loadedLanguages.add('es');
+  }
+
+  Future<void> loadLanguageAssets(String languageCode) async {
+    if (_loadedLanguages.contains(languageCode)) return;
+
+    print('⏳ Loading language assets for: $languageCode');
+    Map<String, String> assets = {};
+
+    if (languageCode == 'en') {
+      assets = {
+        'en_1': 'assets/audio/numeros_en/en_1.wav',
+        'en_2': 'assets/audio/numeros_en/en_2.wav',
+        'en_3': 'assets/audio/numeros_en/en_3.wav',
+        'en_4': 'assets/audio/numeros_en/en_4.wav',
+        'en_5': 'assets/audio/numeros_en/en_5.wav',
+        'en_6': 'assets/audio/numeros_en/en_6.wav',
+        'en_7': 'assets/audio/numeros_en/en_7.wav',
+        'en_8': 'assets/audio/numeros_en/en_8.wav',
+      };
+    } else if (languageCode == 'fr') {
+      assets = {
+        'fr_1': 'assets/audio/numeros_fr/fr_1.wav',
+        'fr_2': 'assets/audio/numeros_fr/fr_2.wav',
+        'fr_3': 'assets/audio/numeros_fr/fr_3.wav',
+        'fr_4': 'assets/audio/numeros_fr/fr_4.wav',
+        'fr_5': 'assets/audio/numeros_fr/fr_5.wav',
+        'fr_6': 'assets/audio/numeros_fr/fr_6.wav',
+        'fr_7': 'assets/audio/numeros_fr/fr_7.wav',
+        'fr_8': 'assets/audio/numeros_fr/fr_8.wav',
+      };
+    }
+
+    if (assets.isNotEmpty) {
+      await _loadBatch(assets);
+      _loadedLanguages.add(languageCode);
+      print('✅ Loaded language: $languageCode');
+    }
+  }
+
+  Future<void> _loadBatch(Map<String, String> assets) async {
     for (final entry in assets.entries) {
+      if (_loadedSources.containsKey(entry.key)) continue;
+
       try {
         final source = await _soloud.loadAsset(entry.value);
         _loadedSources[entry.key] = source;
-        print('✅ Loaded asset: ${entry.key} -> ${entry.value}');
       } catch (e) {
         print('❌ Error loading asset ${entry.key}: $e');
         _log.severe('Error loading asset ${entry.key}: $e');
       }
     }
-    print('🎵 AudioEngine: Loaded ${_loadedSources.length} assets');
   }
 
   /// Play a voice sample, stopping any previously playing voice first.

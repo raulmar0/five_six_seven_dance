@@ -62,6 +62,7 @@ class Sequencer {
   // State
   bool isPlaying = false;
   double bpm = 180.0;
+  String language = 'es'; // 'es', 'en', 'fr'
 
   // Timer vars
   int _startTime = 0;
@@ -87,6 +88,10 @@ class Sequencer {
       _startTime = now - (_currentStepGlobal * newSecPerStep * 1000).round();
     }
     bpm = newBpm;
+  }
+
+  void setLanguage(String newLanguage) {
+    language = newLanguage;
   }
 
   void updateVoicePattern(List<bool> newPattern) {
@@ -167,7 +172,7 @@ class Sequencer {
         // Calculate voice speed based on BPM (similar to JS dynamicRate)
         final voiceSpeed = _calculateVoiceSpeed(bpm);
         _audioEngine.playOneShot(
-          beatNum.toString(),
+          '${language}_$beatNum',
           volume: 1.0,
           speed: voiceSpeed,
         );
@@ -181,13 +186,13 @@ class Sequencer {
     if (bpm < 90) {
       return 1.0;
     } else if (bpm < 140) {
-      return 1.05;
+      return 1.15;
     } else if (bpm < 170) {
-      return 1.1;
+      return 1.3;
     } else if (bpm <= 190) {
-      return 1.16;
+      return 1.45;
     } else {
-      return 1.22;
+      return 1.6;
     }
   }
 }
