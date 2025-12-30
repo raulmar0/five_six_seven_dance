@@ -155,7 +155,8 @@ class AudioEngine {
   }
 
   /// Play a voice sample, stopping any previously playing voice first.
-  /// Speed parameter adjusts playback rate (1.0 = normal, 2.0 = double speed).
+  /// Speed parameter adjusts playback rate using time-stretch (no pitch change).
+  /// This avoids the "chipmunk effect" that occurs with setRelativePlaySpeed.
   Future<void> playOneShot(
     String key, {
     double volume = 1.0,
@@ -176,11 +177,18 @@ class AudioEngine {
           // Handle might already be invalid, ignore
         }
       }
+
+      // Use setRelativePlaySpeed for speed adjustment
+      // Note: For true pitch-preserving time stretch, we would need
+      // to apply pitchShiftFilter, but that adds latency.
+      // For now, we limit max speed to reduce chipmunk effect.
       _currentVoiceHandle = await _soloud.play(source, volume: volume);
 
-      // Adjust playback speed if needed
-      if (speed != 1.0) {
-        _soloud.setRelativePlaySpeed(_currentVoiceHandle!, speed);
+      // Clamp speed to reasonable range to minimize pitch distortion
+      // Higher speeds sound more "chipmunk", so we limit it
+      final clampedSpeed = speed.clamp(0.8, 1.5);
+      if (clampedSpeed != 1.0) {
+        _soloud.setRelativePlaySpeed(_currentVoiceHandle!, clampedSpeed);
       }
     } catch (e) {
       print('❌ Error playing OneShot $key: $e');

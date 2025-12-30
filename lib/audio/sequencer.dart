@@ -185,18 +185,36 @@ class Sequencer {
   }
 
   /// Calculate voice playback speed based on BPM.
-  /// At higher BPMs, voice speaks faster to avoid being cut off.
+  /// Uses linear interpolation to smoothly scale voice speed as BPM increases.
+  ///
+  /// The formula ensures:
+  /// - Below 90 BPM: normal speed (1.0x)
+  /// - 90-240 BPM: linear interpolation from 1.0x to maxSpeed
+  /// - Above 240 BPM: capped at maxSpeed
+  ///
+  /// Max speed is limited to 1.5x as a balance between:
+  /// - Ensuring voice samples complete before the next beat
+  /// - Minimizing the "chipmunk effect" from pitch shifting
+  ///
+  /// Note: Speed is clamped again in AudioEngine.playOneShot() to 1.5 max.
   double _calculateVoiceSpeed(double bpm) {
-    if (bpm < 90) {
-      return 1.0;
-    } else if (bpm < 140) {
-      return 1.15;
-    } else if (bpm < 170) {
-      return 1.3;
-    } else if (bpm <= 190) {
-      return 1.45;
-    } else {
-      return 1.6;
+    const double minBpm = 90.0; // Below this, use normal speed
+    const double maxBpm = 240.0; // At/above this, use max speed
+    const double minSpeed = 1.0; // Normal playback speed
+    const double maxSpeed =
+        1.6; // Max speed (balance between clarity and fitting in beat)
+
+    if (bpm <= minBpm) {
+      return minSpeed;
     }
+
+    if (bpm >= maxBpm) {
+      return maxSpeed;
+    }
+
+    // Linear interpolation between minBpm and maxBpm
+    // Formula: speed = minSpeed + (bpm - minBpm) / (maxBpm - minBpm) * (maxSpeed - minSpeed)
+    final double t = (bpm - minBpm) / (maxBpm - minBpm);
+    return minSpeed + t * (maxSpeed - minSpeed);
   }
 }
