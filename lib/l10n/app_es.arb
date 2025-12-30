@@ -1,0 +1,19 @@
+{
+  "appName": "567 Dance!",
+  "settingsTitle": "Configuración",
+  "supportInfoSection": "SOPORTE E INFO",
+  "helpCenterItem": "Centro de Ayuda",
+  "aboutAppItem": "Sobre la App",
+  "suggestionsItem": "Sugerencias",
+  "languageItem": "Idioma",
+  "appVersion": "567 Dance! v1.0.4",
+  "aboutTitle": "Sobre la App",
+  "aboutDescription": "¡Gracias por ser parte de nuestra comunidad!\n\nCreamos esta app para celebrar la pasión, energía y disciplina del baile latino. Ya sea que estés dominando tus primeros pasos o perfeccionando tu ritmo, nos sentimos honrados de ser parte de tu viaje de baile.\n\n¡Sigue moviéndote y deja que la música te guíe!",
+  "developerTitle": "DESARROLLADOR",
+  "contactTitle": "CONTACTO Y SOPORTE",
+  "tempoLabel": "Tempo",
+  "measuresLabel": "Compás",
+  "instrumentsLabel": "Instrumentos",
+  "voiceLabel": "Voz",
+  "versionBadge": "VERSIÓN 1.0"
+}

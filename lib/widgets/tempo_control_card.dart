@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
+import 'package:five_six_seven_dance/l10n/app_localizations.dart';
 
 // --- COMPONENTE: Tarjeta Superior de Tempo ---
 class TempoControlCard extends StatelessWidget {
@@ -27,6 +28,7 @@ class TempoControlCard extends StatelessWidget {
       'es': 'Español 🇲🇽',
       'en': 'Inglés 🇺🇸',
       'fr': 'Francés 🇫🇷',
+      'ko': '한국어 🇰🇷',
     };
 
     return Container(
@@ -45,7 +47,7 @@ class TempoControlCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'TEMPO',
+                    AppLocalizations.of(context)!.tempoLabel.toUpperCase(),
                     style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 10,

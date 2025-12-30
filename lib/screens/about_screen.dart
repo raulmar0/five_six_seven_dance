@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_colors.dart';
+import 'package:five_six_seven_dance/l10n/app_localizations.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -10,7 +11,9 @@ class AboutScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Sobre la App'), // Changed from "About the App"
+        title: Text(
+          AppLocalizations.of(context)!.aboutTitle,
+        ), // Changed from "Sobre la App"
         centerTitle: true,
         backgroundColor: AppColors.background,
         elevation: 0,
@@ -78,8 +81,8 @@ class AboutScreen extends StatelessWidget {
                     width: 1,
                   ),
                 ),
-                child: const Text(
-                  'VERSION 1.0',
+                child: Text(
+                  AppLocalizations.of(context)!.versionBadge,
                   style: TextStyle(
                     color: AppColors.primaryOrange,
                     fontSize: 12,
@@ -98,11 +101,8 @@ class AboutScreen extends StatelessWidget {
                   color: AppColors.cardBackground,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Text(
-                  'Thank you for being part of our community!\n\n'
-                  'We created this app to celebrate the passion, energy, and discipline of Latin dance. '
-                  'Whether you\'re mastering your first steps or perfecting your rhythm, we are honored to be part of your dance journey.\n\n'
-                  'Keep moving and let the music guide you!',
+                child: Text(
+                  AppLocalizations.of(context)!.aboutDescription,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: AppColors.textSecondary,
@@ -116,7 +116,7 @@ class AboutScreen extends StatelessWidget {
 
               // Developer Section
               Text(
-                'DEVELOPER',
+                AppLocalizations.of(context)!.developerTitle,
                 style: TextStyle(
                   color: AppColors.textSecondary.withOpacity(0.6),
                   fontSize: 11,
@@ -143,7 +143,7 @@ class AboutScreen extends StatelessWidget {
 
               // Contact Section
               Text(
-                'CONTACT & SUPPORT',
+                AppLocalizations.of(context)!.contactTitle,
                 style: TextStyle(
                   color: AppColors.textSecondary.withOpacity(0.6),
                   fontSize: 11,

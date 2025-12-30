@@ -7,6 +7,8 @@ import 'widgets/section_title.dart';
 import 'audio/audio_engine.dart';
 import 'audio/sequencer.dart';
 import 'screens/settings_screen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:five_six_seven_dance/l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,14 +17,42 @@ void main() async {
   runApp(const SalsaMixerApp());
 }
 
-class SalsaMixerApp extends StatelessWidget {
+class SalsaMixerApp extends StatefulWidget {
   const SalsaMixerApp({super.key});
+
+  @override
+  State<SalsaMixerApp> createState() => _SalsaMixerAppState();
+}
+
+class _SalsaMixerAppState extends State<SalsaMixerApp> {
+  Locale _locale = const Locale('es');
+
+  void _changeLanguage(String languageCode) {
+    setState(() {
+      _locale = Locale(languageCode);
+    });
+    // Also load audio assets for the new language
+    AudioEngine().loadLanguageAssets(languageCode);
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: '567 Dance!',
       debugShowCheckedModeBanner: false,
+      locale: _locale,
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'), // English
+        Locale('es'), // Spanish
+        Locale('fr'), // French
+        Locale('ko'), // Korean
+      ],
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: AppColors.background,
         primaryColor: AppColors.primaryOrange,
@@ -38,7 +68,6 @@ class SalsaMixerApp extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        // Configuración del tema del Slider para que sea naranja
         sliderTheme: SliderThemeData(
           activeTrackColor: AppColors.primaryOrange,
           inactiveTrackColor: AppColors.inactiveButton,
@@ -47,7 +76,10 @@ class SalsaMixerApp extends StatelessWidget {
           trackHeight: 4.0,
         ),
       ),
-      home: const SalsaMixerScreen(),
+      home: SalsaMixerScreen(
+        currentLanguage: _locale.languageCode,
+        onLanguageChanged: _changeLanguage,
+      ),
     );
   }
 }
@@ -56,7 +88,14 @@ class SalsaMixerApp extends StatelessWidget {
 // PANTALLA PRINCIPAL
 // ==========================================
 class SalsaMixerScreen extends StatefulWidget {
-  const SalsaMixerScreen({super.key});
+  final String currentLanguage;
+  final Function(String) onLanguageChanged;
+
+  const SalsaMixerScreen({
+    super.key,
+    required this.currentLanguage,
+    required this.onLanguageChanged,
+  });
 
   @override
   State<SalsaMixerScreen> createState() => _SalsaMixerScreenState();
@@ -65,7 +104,7 @@ class SalsaMixerScreen extends StatefulWidget {
 class _SalsaMixerScreenState extends State<SalsaMixerScreen>
     with WidgetsBindingObserver {
   // Estados de ejemplo para la UI
-  String _currentLanguage = 'es';
+  // _currentLanguage is now passed from parent
   double _currentBPM = 180;
   bool _isPlaying = false;
   Map<String, int> _instrumentVolumes = {
@@ -103,7 +142,7 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen>
     );
     // Sync initial state
     _sequencer.setBpm(_currentBPM);
-    _sequencer.setLanguage(_currentLanguage);
+    _sequencer.setLanguage(widget.currentLanguage);
     _sequencer.updateInstrumentVolumes(_instrumentVolumes);
     _sequencer.updateVoicePattern(_voiceStates);
     _sequencer.updateVoiceVolume(_voiceVolume);
@@ -137,7 +176,7 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('567 Dance!'),
+        title: Text(AppLocalizations.of(context)!.appName),
         centerTitle: true,
         actions: [
           IconButton(
@@ -145,7 +184,12 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen>
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                MaterialPageRoute(
+                  builder: (context) => SettingsScreen(
+                    currentLanguage: widget.currentLanguage,
+                    onLanguageChanged: widget.onLanguageChanged,
+                  ),
+                ),
               );
             },
           ),
@@ -162,7 +206,7 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen>
               TempoControlCard(
                 bpm: _currentBPM,
                 isPlaying: _isPlaying,
-                currentLanguage: _currentLanguage,
+                currentLanguage: widget.currentLanguage,
                 onPlayPause: () {
                   setState(() {
                     _isPlaying = !_isPlaying;
@@ -180,16 +224,16 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen>
                   _sequencer.setBpm(clampedBpm);
                 },
                 onLanguageChanged: (val) {
-                  setState(() => _currentLanguage = val);
-                  // Lazy load assets for new language
-                  AudioEngine().loadLanguageAssets(val);
+                  widget.onLanguageChanged(val);
                   _sequencer.setLanguage(val);
                 },
               ),
 
               const SizedBox(height: 30),
 
-              const SectionTitle(title: "INSTRUMENTOS"),
+              SectionTitle(
+                title: AppLocalizations.of(context)!.instrumentsLabel,
+              ),
 
               const SizedBox(height: 16),
 

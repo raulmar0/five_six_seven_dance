@@ -1,0 +1,70 @@
+{
+  "appName": "567 Dance!",
+  "@appName": {
+    "description": "The name of the application"
+  },
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "Title for the settings screen"
+  },
+  "supportInfoSection": "SUPPORT & INFO",
+  "@supportInfoSection": {
+    "description": "Section header for support and info in settings"
+  },
+  "helpCenterItem": "Help Center",
+  "@helpCenterItem": {
+    "description": "Menu item for Help Center"
+  },
+  "aboutAppItem": "About the App",
+  "@aboutAppItem": {
+    "description": "Menu item for About the App"
+  },
+  "suggestionsItem": "Suggestions",
+  "@suggestionsItem": {
+    "description": "Menu item for Suggestions"
+  },
+  "languageItem": "Language",
+  "@languageItem": {
+    "description": "Menu item for Language selection"
+  },
+  "appVersion": "567 Dance! v1.0.4",
+  "@appVersion": {
+    "description": "App version string"
+  },
+  "aboutTitle": "About the App",
+  "@aboutTitle": {
+    "description": "Title for the about screen"
+  },
+  "aboutDescription": "Thank you for being part of our community!\n\nWe created this app to celebrate the passion, energy, and discipline of Latin dance. Whether you're mastering your first steps or perfecting your rhythm, we are honored to be part of your dance journey.\n\nKeep moving and let the music guide you!",
+  "@aboutDescription": {
+    "description": "Description text in the about screen"
+  },
+  "developerTitle": "DEVELOPER",
+  "@developerTitle": {
+    "description": "Header for the developer section"
+  },
+  "contactTitle": "CONTACT & SUPPORT",
+  "@contactTitle": {
+    "description": "Header for the contact section"
+  },
+  "tempoLabel": "Tempo",
+  "@tempoLabel": {
+    "description": "Label for the tempo control"
+  },
+  "measuresLabel": "Bar",
+  "@measuresLabel": {
+    "description": "Label for the measures/bars control"
+  },
+  "instrumentsLabel": "Instruments",
+  "@instrumentsLabel": {
+    "description": "Label for the instruments section"
+  },
+  "voiceLabel": "Voice",
+  "@voiceLabel": {
+    "description": "Label for the voice section"
+  },
+  "versionBadge": "VERSION 1.0",
+  "@versionBadge": {
+    "description": "Badge showing version number in about screen"
+  }
+}

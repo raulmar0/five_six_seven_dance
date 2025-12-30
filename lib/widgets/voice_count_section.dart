@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import 'section_title.dart';
+import 'package:five_six_seven_dance/l10n/app_localizations.dart';
 
 // --- COMPONENTE: Sección de Conteo de Voz y Grid ---
 class VoiceCountSection extends StatelessWidget {
@@ -37,7 +38,9 @@ class VoiceCountSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const SectionTitle(title: "CONTEO DE VOZ"),
+              SectionTitle(
+                title: AppLocalizations.of(context)!.voiceLabel.toUpperCase(),
+              ),
               // Volume Control
               GestureDetector(
                 onTap: handleVolumeTap,

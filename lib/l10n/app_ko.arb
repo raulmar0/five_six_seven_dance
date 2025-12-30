@@ -1,0 +1,19 @@
+{
+  "appName": "567 Dance!",
+  "settingsTitle": "설정",
+  "supportInfoSection": "지원 및 정보",
+  "helpCenterItem": "고객 센터",
+  "aboutAppItem": "앱 정보",
+  "suggestionsItem": "제안",
+  "languageItem": "언어",
+  "appVersion": "567 Dance! v1.0.4",
+  "aboutTitle": "앱 정보",
+  "aboutDescription": "저희 커뮤니티의 일원이 되어 주셔서 감사합니다!\n\n라틴 댄스의 열정, 에너지, 규율을 기념하기 위해 이 앱을 만들었습니다. 첫 걸음을 마스터하든 리듬을 완벽하게 다듬든, 여러분의 댄스 여정에 함께하게 되어 영광입니다.\n\n계속 움직이며 음악에 몸을 맡기세요!",
+  "developerTitle": "개발자",
+  "contactTitle": "문의 및 지원",
+  "tempoLabel": "템포",
+  "measuresLabel": "마디",
+  "instrumentsLabel": "악기",
+  "voiceLabel": "음성",
+  "versionBadge": "버전 1.0"
+}
