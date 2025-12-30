@@ -4,8 +4,13 @@ import 'widgets/tempo_control_card.dart';
 import 'widgets/instrument_section.dart';
 import 'widgets/voice_count_section.dart';
 import 'widgets/section_title.dart';
+import 'audio/audio_engine.dart';
+import 'audio/sequencer.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Pre-load audio
+  await AudioEngine().loadAssets();
   runApp(const SalsaMixerApp());
 }
 
@@ -63,10 +68,10 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen> {
   bool _isPlaying = false;
   Map<String, int> _instrumentVolumes = {
     'Clave': 2,
-    'Guiro': 1,
-    'Guitar': 3,
-    'Bongo': 0,
-    'Cowbell': 4,
+    'Guiro': 2, // Also controls ShortGuiro
+    'Bongo': 2, // Also controls ShortBongo
+    'Cowbell': 2,
+    'Bass': 2,
   };
   bool _isVoiceMuted = false;
   // Indices 0, 2, 4, 6 corresponden a los números 1, 3, 5, 7
@@ -80,6 +85,29 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen> {
     true,
     false,
   ];
+
+  late Sequencer _sequencer;
+
+  @override
+  void initState() {
+    super.initState();
+    _sequencer = Sequencer(
+      onStep: () {
+        // Could add visual feedback here
+      },
+    );
+    // Sync initial state
+    _sequencer.setBpm(_currentBPM);
+    _sequencer.updateInstrumentVolumes(_instrumentVolumes);
+    _sequencer.updateVoicePattern(_voiceStates);
+    _sequencer.updateVoiceMute(_isVoiceMuted);
+  }
+
+  @override
+  void dispose() {
+    _sequencer.stop();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,8 +131,20 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen> {
                 bpm: _currentBPM,
                 isPlaying: _isPlaying,
                 currentRhythm: _currentRhythm,
-                onPlayPause: () => setState(() => _isPlaying = !_isPlaying),
-                onBpmChanged: (val) => setState(() => _currentBPM = val),
+                onPlayPause: () {
+                  setState(() {
+                    _isPlaying = !_isPlaying;
+                    if (_isPlaying) {
+                      _sequencer.play();
+                    } else {
+                      _sequencer.stop();
+                    }
+                  });
+                },
+                onBpmChanged: (val) {
+                  setState(() => _currentBPM = val);
+                  _sequencer.setBpm(val);
+                },
                 onRhythmChanged: (val) => setState(() => _currentRhythm = val),
               ),
 
@@ -123,6 +163,7 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen> {
                       setState(() {
                         _instrumentVolumes[name] = volume;
                       });
+                      _sequencer.updateInstrumentVolumes(_instrumentVolumes);
                     },
                   ),
                 ),
@@ -135,12 +176,15 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen> {
               VoiceCountSection(
                 voiceStates: _voiceStates,
                 isMuted: _isVoiceMuted,
-                onToggleMute: () =>
-                    setState(() => _isVoiceMuted = !_isVoiceMuted),
+                onToggleMute: () {
+                  setState(() => _isVoiceMuted = !_isVoiceMuted);
+                  _sequencer.updateVoiceMute(_isVoiceMuted);
+                },
                 onVoiceToggled: (index) {
                   setState(() {
                     _voiceStates[index] = !_voiceStates[index];
                   });
+                  _sequencer.updateVoicePattern(_voiceStates);
                 },
               ),
               // Espacio extra al final si se desea
