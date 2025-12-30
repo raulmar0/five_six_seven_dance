@@ -46,10 +46,12 @@ class AboutScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: const Icon(
-                  Icons.accessibility_new,
-                  color: AppColors.primaryOrange,
-                  size: 50,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
 

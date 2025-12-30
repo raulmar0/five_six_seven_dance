@@ -10,10 +10,14 @@ import 'screens/settings_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:five_six_seven_dance/l10n/app_localizations.dart';
 
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   // Pre-load audio
   await AudioEngine().loadBaseAssets();
+  FlutterNativeSplash.remove();
   runApp(const SalsaMixerApp());
 }
 
