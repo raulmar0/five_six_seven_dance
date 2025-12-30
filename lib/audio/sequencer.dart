@@ -181,13 +181,13 @@ class Sequencer {
     if (bpm < 90) {
       return 1.0;
     } else if (bpm < 140) {
-      return 1.125;
+      return 1.05;
     } else if (bpm < 170) {
-      return 1.25;
+      return 1.1;
     } else if (bpm <= 190) {
-      return 1.375;
+      return 1.16;
     } else {
-      return 1.5;
+      return 1.22;
     }
   }
 }
