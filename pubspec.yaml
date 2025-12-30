@@ -82,9 +82,10 @@ flutter_launcher_icons:
   min_sdk_android: 21
 
 flutter_native_splash:
-  image: "assets/images/splashscreen.jpg"
+  background_image: "assets/images/splashscreen.jpg"
+  ios_content_mode: scaleAspectFill
   android_12:
-    image: "assets/images/splashscreen.jpg"
+    background_image: "assets/images/splashscreen.jpg"
   android: true
   ios: true
   fullscreen: true
