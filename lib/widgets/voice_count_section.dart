@@ -6,19 +6,25 @@ import 'section_title.dart';
 class VoiceCountSection extends StatelessWidget {
   final List<bool> voiceStates;
   final Function(int) onVoiceToggled;
-  final bool isMuted;
-  final VoidCallback onToggleMute;
+  final int volume; // 0-4
+  final ValueChanged<int> onVolumeChanged;
 
   const VoiceCountSection({
     super.key,
     required this.voiceStates,
     required this.onVoiceToggled,
-    required this.isMuted,
-    required this.onToggleMute,
+    required this.volume,
+    required this.onVolumeChanged,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Volume cycle logic: 0 -> 1 -> 2 -> 3 -> 4 -> 0
+    void handleVolumeTap() {
+      int nextVolume = (volume + 1) > 4 ? 0 : (volume + 1);
+      onVolumeChanged(nextVolume);
+    }
+
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
@@ -32,14 +38,46 @@ class VoiceCountSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const SectionTitle(title: "CONTEO DE VOZ"),
+              // Volume Control
               GestureDetector(
-                onTap: onToggleMute,
-                child: Icon(
-                  isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
-                  color: isMuted
-                      ? AppColors.textSecondary
-                      : AppColors.primaryOrange.withOpacity(0.8),
-                  size: 20,
+                onTap: handleVolumeTap,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.inactiveButton.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        volume == 0
+                            ? Icons.volume_off_rounded
+                            : Icons.volume_up_rounded,
+                        color: volume > 0
+                            ? AppColors.primaryOrange
+                            : AppColors.textSecondary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      // Volume Bars
+                      Row(
+                        children: List.generate(4, (index) {
+                          Color barColor = (index < volume)
+                              ? AppColors.indicatorBlue
+                              : AppColors.inactiveButton;
+                          return Container(
+                            margin: const EdgeInsets.only(right: 4),
+                            width: 12,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: barColor,
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -63,6 +101,7 @@ class VoiceCountSection extends StatelessWidget {
           const SizedBox(height: 8),
           // Segunda fila (5-8)
           Row(
+            // ... rest keeps same logic ...
             children: List.generate(4, (index) {
               final buttonIndex = index + 4;
               return Expanded(

@@ -75,7 +75,7 @@ class Sequencer {
   // Loop State passed from UI
   List<bool> voicePattern = List.filled(8, false);
   Map<String, int> instrumentVolumes = {};
-  bool isVoiceMuted = false;
+  int voiceVolume = 4; // 0-4 range
 
   Sequencer({required this.onStep});
 
@@ -102,8 +102,8 @@ class Sequencer {
     instrumentVolumes = newVolumes;
   }
 
-  void updateVoiceMute(bool muted) {
-    isVoiceMuted = muted;
+  void updateVoiceVolume(int newVolume) {
+    voiceVolume = newVolume;
   }
 
   void play() {
@@ -165,15 +165,19 @@ class Sequencer {
     }
 
     // B. Play voice on main beats only (x.1 steps = even indices: 0, 2, 4, 6, 8, 10, 12, 14)
-    if (stepIndex % 2 == 0 && !isVoiceMuted) {
+    if (stepIndex % 2 == 0 && voiceVolume > 0) {
       // Convert step index to beat number (1-8)
       int beatNum = (stepIndex ~/ 2) + 1; // 0->1, 2->2, 4->3, etc.
       if (beatNum >= 1 && beatNum <= 8 && voicePattern[beatNum - 1]) {
         // Calculate voice speed based on BPM (similar to JS dynamicRate)
         final voiceSpeed = _calculateVoiceSpeed(bpm);
+
+        // Calculate volume (0-4 -> 0.0-1.0)
+        final normalizedVolume = voiceVolume / 4.0;
+
         _audioEngine.playOneShot(
           '${language}_$beatNum',
-          volume: 1.0,
+          volume: normalizedVolume,
           speed: voiceSpeed,
         );
       }

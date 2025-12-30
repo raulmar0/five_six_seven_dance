@@ -73,7 +73,7 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen> {
     'Cowbell': 2,
     'Bass': 2,
   };
-  bool _isVoiceMuted = false;
+  int _voiceVolume = 4; // 0-4
   // Indices 0, 2, 4, 6 corresponden a los números 1, 3, 5, 7
   List<bool> _voiceStates = [
     true,
@@ -101,7 +101,7 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen> {
     _sequencer.setLanguage(_currentLanguage);
     _sequencer.updateInstrumentVolumes(_instrumentVolumes);
     _sequencer.updateVoicePattern(_voiceStates);
-    _sequencer.updateVoiceMute(_isVoiceMuted);
+    _sequencer.updateVoiceVolume(_voiceVolume);
   }
 
   @override
@@ -183,10 +183,10 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen> {
               // La altura depende del contenido, no expandimos
               VoiceCountSection(
                 voiceStates: _voiceStates,
-                isMuted: _isVoiceMuted,
-                onToggleMute: () {
-                  setState(() => _isVoiceMuted = !_isVoiceMuted);
-                  _sequencer.updateVoiceMute(_isVoiceMuted);
+                volume: _voiceVolume,
+                onVolumeChanged: (vol) {
+                  setState(() => _voiceVolume = vol);
+                  _sequencer.updateVoiceVolume(vol);
                 },
                 onVoiceToggled: (index) {
                   setState(() {
