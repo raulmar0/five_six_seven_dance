@@ -6,6 +6,7 @@ import 'widgets/voice_count_section.dart';
 import 'widgets/section_title.dart';
 import 'audio/audio_engine.dart';
 import 'audio/sequencer.dart';
+import 'screens/settings_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -139,7 +140,15 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen>
         title: const Text('567 Dance!'),
         centerTitle: true,
         actions: [
-          IconButton(icon: const Icon(Icons.settings), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
+            },
+          ),
         ],
       ),
       // Layout actualizado: Column con parte media expandida (instrumentos)
