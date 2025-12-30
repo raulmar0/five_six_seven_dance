@@ -61,7 +61,8 @@ class SalsaMixerScreen extends StatefulWidget {
   State<SalsaMixerScreen> createState() => _SalsaMixerScreenState();
 }
 
-class _SalsaMixerScreenState extends State<SalsaMixerScreen> {
+class _SalsaMixerScreenState extends State<SalsaMixerScreen>
+    with WidgetsBindingObserver {
   // Estados de ejemplo para la UI
   String _currentLanguage = 'es';
   double _currentBPM = 180;
@@ -91,6 +92,9 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen> {
   @override
   void initState() {
     super.initState();
+    // Register lifecycle observer
+    WidgetsBinding.instance.addObserver(this);
+
     _sequencer = Sequencer(
       onStep: () {
         // Could add visual feedback here
@@ -105,7 +109,25 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // Stop playback when app goes to background
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.hidden) {
+      if (_isPlaying) {
+        print('📱 App went to background, stopping playback');
+        _sequencer.stop();
+        setState(() {
+          _isPlaying = false;
+        });
+      }
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _sequencer.stop();
     super.dispose();
   }
