@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:audio_session/audio_session.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:logging/logging.dart';
 
@@ -23,8 +25,24 @@ class AudioEngine {
     if (_isInitialized) return;
 
     try {
+      // Configure audio session for iOS
+      if (Platform.isIOS) {
+        print('🎵 Configuring iOS audio session...');
+        final session = await AudioSession.instance;
+        await session.configure(
+          const AudioSessionConfiguration(
+            avAudioSessionCategory: AVAudioSessionCategory.playback,
+            avAudioSessionCategoryOptions:
+                AVAudioSessionCategoryOptions.mixWithOthers,
+            avAudioSessionMode: AVAudioSessionMode.defaultMode,
+          ),
+        );
+        await session.setActive(true);
+        print('✅ iOS audio session configured and activated');
+      }
+
       _soloud = SoLoud.instance;
-      // Configure for robustness on Android Emulator
+      // Configure for robustness
       await _soloud.init(
         bufferSize: 2048,
         sampleRate: 44100,
@@ -44,7 +62,12 @@ class AudioEngine {
   final Set<String> _loadedLanguages = {};
 
   Future<void> loadBaseAssets() async {
-    if (!_isInitialized) await initialize();
+    print('🎵 loadBaseAssets() called');
+    if (!_isInitialized) {
+      print('🎵 Engine not initialized, initializing now...');
+      await initialize();
+    }
+    print('🎵 Engine initialized: $_isInitialized');
 
     final assets = {
       // Instruments
@@ -109,17 +132,26 @@ class AudioEngine {
   }
 
   Future<void> _loadBatch(Map<String, String> assets) async {
+    print('🎵 _loadBatch: Starting to load ${assets.length} assets');
     for (final entry in assets.entries) {
-      if (_loadedSources.containsKey(entry.key)) continue;
+      if (_loadedSources.containsKey(entry.key)) {
+        print('🎵 Asset ${entry.key} already loaded, skipping');
+        continue;
+      }
 
       try {
+        print('🎵 Loading asset: ${entry.key} from ${entry.value}');
         final source = await _soloud.loadAsset(entry.value);
         _loadedSources[entry.key] = source;
+        print('✅ Loaded asset: ${entry.key}');
       } catch (e) {
         print('❌ Error loading asset ${entry.key}: $e');
         _log.severe('Error loading asset ${entry.key}: $e');
       }
     }
+    print(
+      '🎵 _loadBatch: Completed. Total loaded sources: ${_loadedSources.length}',
+    );
   }
 
   /// Play a voice sample, stopping any previously playing voice first.
@@ -160,17 +192,24 @@ class AudioEngine {
     String instrumentKey, {
     double volume = 1.0,
   }) async {
-    if (volume <= 0) return; // Don't play if muted
+    if (volume <= 0) {
+      print('🔇 playInstrument($instrumentKey) skipped - volume is 0');
+      return;
+    }
 
     final source = _loadedSources[instrumentKey];
     if (source == null) {
+      print('⚠️ playInstrument($instrumentKey) - source not found!');
       _log.warning('Instrument asset not found: $instrumentKey');
       return;
     }
 
     try {
-      await _soloud.play(source, volume: volume);
+      print('🎵 playInstrument($instrumentKey) volume=$volume');
+      final handle = await _soloud.play(source, volume: volume);
+      print('✅ playInstrument($instrumentKey) handle=$handle');
     } catch (e) {
+      print('❌ playInstrument($instrumentKey) error: $e');
       _log.severe('Error playing instrument $instrumentKey: $e');
     }
   }
