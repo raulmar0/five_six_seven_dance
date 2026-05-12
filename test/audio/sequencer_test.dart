@@ -82,7 +82,9 @@ void main() {
       playback: playback,
       clock: clock,
       scheduler: scheduler,
-    )..updateInstrumentVolumes({'Cowbell': 1, 'Guiro': 1});
+    )
+      ..setBpm(180)
+      ..updateInstrumentVolumes({'Cowbell': 1, 'Guiro': 1});
 
     sequencer.play();
 
