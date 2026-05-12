@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'app_routes.dart';
@@ -22,10 +23,13 @@ void main() async {
     FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
     await AudioEngine().loadBaseAssets();
     FlutterNativeSplash.remove();
+  } else {
+    // iOS Safari requires a user gesture to create a WebAudio AudioContext,
+    // so we can't initialize SoLoud here. But we CAN prefetch the WAV bytes
+    // into the browser HTTP cache in parallel with app startup so the first
+    // Play tap only pays for the (fast) init + decode, not the download.
+    unawaited(AudioEngine().prefetchAssetBytes());
   }
-  // On web, audio engine init is deferred to the first Play tap so the
-  // underlying WebAudio AudioContext is created inside a user gesture
-  // (required by iOS Safari).
   runApp(const SalsaMixerApp());
 }
 

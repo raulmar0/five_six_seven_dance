@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:audio_session/audio_session.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:logging/logging.dart';
 
@@ -135,6 +136,72 @@ class AudioEngine {
   // Track loaded languages to avoid reloading
   final Set<String> _loadedLanguages = {};
 
+  static const Map<String, String> _baseAssets = {
+    // Instruments
+    'Clave': 'assets/audio/instrumentos/clave6(1).wav',
+    'Guiro': 'assets/audio/instrumentos/guiro(1).wav',
+    'ShortGuiro': 'assets/audio/instrumentos/short-guiro(1).wav',
+    'Bongo': 'assets/audio/instrumentos/bongo(1).wav',
+    'ShortBongo': 'assets/audio/instrumentos/short-bongo(1).wav',
+    'Cowbell': 'assets/audio/instrumentos/cowbell-latin-hit(1).wav',
+    'Bass': 'assets/audio/instrumentos/bass(1).wav',
+
+    // Default Language (Spanish)
+    'es_1': 'assets/audio/numeros_es/es_1.wav',
+    'es_2': 'assets/audio/numeros_es/es_2.wav',
+    'es_3': 'assets/audio/numeros_es/es_3.wav',
+    'es_4': 'assets/audio/numeros_es/es_4.wav',
+    'es_5': 'assets/audio/numeros_es/es_5.wav',
+    'es_6': 'assets/audio/numeros_es/es_6.wav',
+    'es_7': 'assets/audio/numeros_es/es_7.wav',
+    'es_8': 'assets/audio/numeros_es/es_8.wav',
+  };
+
+  static const Map<String, Map<String, String>> _languageAssetSets = {
+    'en': {
+      'en_1': 'assets/audio/numeros_en/en_1.wav',
+      'en_2': 'assets/audio/numeros_en/en_2.wav',
+      'en_3': 'assets/audio/numeros_en/en_3.wav',
+      'en_4': 'assets/audio/numeros_en/en_4.wav',
+      'en_5': 'assets/audio/numeros_en/en_5.wav',
+      'en_6': 'assets/audio/numeros_en/en_6.wav',
+      'en_7': 'assets/audio/numeros_en/en_7.wav',
+      'en_8': 'assets/audio/numeros_en/en_8.wav',
+    },
+    'fr': {
+      'fr_1': 'assets/audio/numeros_fr/fr_1.wav',
+      'fr_2': 'assets/audio/numeros_fr/fr_2.wav',
+      'fr_3': 'assets/audio/numeros_fr/fr_3.wav',
+      'fr_4': 'assets/audio/numeros_fr/fr_4.wav',
+      'fr_5': 'assets/audio/numeros_fr/fr_5.wav',
+      'fr_6': 'assets/audio/numeros_fr/fr_6.wav',
+      'fr_7': 'assets/audio/numeros_fr/fr_7.wav',
+      'fr_8': 'assets/audio/numeros_fr/fr_8.wav',
+    },
+  };
+
+  /// Pre-warms the browser's HTTP cache for every audio asset by issuing
+  /// `rootBundle.load` for each path in parallel. Safe to call before the
+  /// audio engine is initialized — used on web so the first Play tap
+  /// (which initializes SoLoud inside a user gesture, as iOS Safari
+  /// requires) can pull bytes from cache instead of the network.
+  Future<void> prefetchAssetBytes() async {
+    final allPaths = <String>{
+      ..._baseAssets.values,
+      for (final lang in _languageAssetSets.values) ...lang.values,
+    };
+    await Future.wait(
+      allPaths.map((path) async {
+        try {
+          await rootBundle.load(path);
+        } catch (e) {
+          _log.warning('Prefetch failed for $path: $e');
+        }
+      }),
+    );
+    _log.fine('Prefetched ${allPaths.length} audio assets');
+  }
+
   Future<void> loadBaseAssets() async {
     _log.fine('loadBaseAssets() called');
     if (!_isInitialized) {
@@ -143,28 +210,7 @@ class AudioEngine {
     }
     _log.fine('Engine initialized: $_isInitialized');
 
-    final assets = {
-      // Instruments
-      'Clave': 'assets/audio/instrumentos/clave6(1).wav',
-      'Guiro': 'assets/audio/instrumentos/guiro(1).wav',
-      'ShortGuiro': 'assets/audio/instrumentos/short-guiro(1).wav',
-      'Bongo': 'assets/audio/instrumentos/bongo(1).wav',
-      'ShortBongo': 'assets/audio/instrumentos/short-bongo(1).wav',
-      'Cowbell': 'assets/audio/instrumentos/cowbell-latin-hit(1).wav',
-      'Bass': 'assets/audio/instrumentos/bass(1).wav',
-
-      // Default Language (Spanish)
-      'es_1': 'assets/audio/numeros_es/es_1.wav',
-      'es_2': 'assets/audio/numeros_es/es_2.wav',
-      'es_3': 'assets/audio/numeros_es/es_3.wav',
-      'es_4': 'assets/audio/numeros_es/es_4.wav',
-      'es_5': 'assets/audio/numeros_es/es_5.wav',
-      'es_6': 'assets/audio/numeros_es/es_6.wav',
-      'es_7': 'assets/audio/numeros_es/es_7.wav',
-      'es_8': 'assets/audio/numeros_es/es_8.wav',
-    };
-
-    await _loadBatch(assets);
+    await _loadBatch(_baseAssets);
     _loadedLanguages.add('es');
   }
 
@@ -172,33 +218,9 @@ class AudioEngine {
     if (_loadedLanguages.contains(languageCode)) return;
 
     _log.fine('Loading language assets for: $languageCode');
-    Map<String, String> assets = {};
+    final assets = _languageAssetSets[languageCode];
 
-    if (languageCode == 'en') {
-      assets = {
-        'en_1': 'assets/audio/numeros_en/en_1.wav',
-        'en_2': 'assets/audio/numeros_en/en_2.wav',
-        'en_3': 'assets/audio/numeros_en/en_3.wav',
-        'en_4': 'assets/audio/numeros_en/en_4.wav',
-        'en_5': 'assets/audio/numeros_en/en_5.wav',
-        'en_6': 'assets/audio/numeros_en/en_6.wav',
-        'en_7': 'assets/audio/numeros_en/en_7.wav',
-        'en_8': 'assets/audio/numeros_en/en_8.wav',
-      };
-    } else if (languageCode == 'fr') {
-      assets = {
-        'fr_1': 'assets/audio/numeros_fr/fr_1.wav',
-        'fr_2': 'assets/audio/numeros_fr/fr_2.wav',
-        'fr_3': 'assets/audio/numeros_fr/fr_3.wav',
-        'fr_4': 'assets/audio/numeros_fr/fr_4.wav',
-        'fr_5': 'assets/audio/numeros_fr/fr_5.wav',
-        'fr_6': 'assets/audio/numeros_fr/fr_6.wav',
-        'fr_7': 'assets/audio/numeros_fr/fr_7.wav',
-        'fr_8': 'assets/audio/numeros_fr/fr_8.wav',
-      };
-    }
-
-    if (assets.isNotEmpty) {
+    if (assets != null) {
       await _loadBatch(assets);
       _loadedLanguages.add(languageCode);
       _log.info('Loaded language: $languageCode');
