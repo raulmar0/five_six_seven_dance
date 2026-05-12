@@ -27,7 +27,7 @@
   "@languageItem": {
     "description": "Menu item for Language selection"
   },
-  "appVersion": "567 Dance! v2.0",
+  "appVersion": "567 Dance! v2.1",
   "@appVersion": {
     "description": "App version string"
   },
@@ -63,7 +63,7 @@
   "@voiceLabel": {
     "description": "Label for the voice section"
   },
-  "versionBadge": "VERSION 2.0",
+  "versionBadge": "VERSION 2.1",
   "@versionBadge": {
     "description": "Badge showing version number in about screen"
   },

@@ -138,7 +138,7 @@ class Sequencer {
 
   // State
   bool isPlaying = false;
-  double bpm = 180.0;
+  double bpm = 130.0;
   String language = 'es'; // 'es', 'en', 'fr'
 
   // Timer vars

@@ -147,7 +147,7 @@ abstract class AppLocalizations {
   /// App version string
   ///
   /// In en, this message translates to:
-  /// **'567 Dance! v2.0'**
+  /// **'567 Dance! v2.1'**
   String get appVersion;
 
   /// Title for the about screen
@@ -201,7 +201,7 @@ abstract class AppLocalizations {
   /// Badge showing version number in about screen
   ///
   /// In en, this message translates to:
-  /// **'VERSION 2.0'**
+  /// **'VERSION 2.1'**
   String get versionBadge;
 
   /// Section header for app-level options

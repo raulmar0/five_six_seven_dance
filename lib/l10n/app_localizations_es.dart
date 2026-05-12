@@ -30,7 +30,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get languageItem => 'Idioma';
 
   @override
-  String get appVersion => '567 Dance! v2.0';
+  String get appVersion => '567 Dance! v2.1';
 
   @override
   String get aboutTitle => 'Sobre la App';
@@ -58,7 +58,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get voiceLabel => 'Voz';
 
   @override
-  String get versionBadge => 'VERSIÓN 2.0';
+  String get versionBadge => 'VERSIÓN 2.1';
 
   @override
   String get appSection => 'APP';

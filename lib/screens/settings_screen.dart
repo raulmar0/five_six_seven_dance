@@ -235,7 +235,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       messenger.hideCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(
-          content: Text(t.upToDate),
+          content: Text(
+            t.upToDate,
+            style: const TextStyle(color: Colors.white),
+          ),
           backgroundColor: AppColors.cardBackground,
           duration: const Duration(seconds: 2),
         ),

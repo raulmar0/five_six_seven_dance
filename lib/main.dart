@@ -153,7 +153,7 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen>
     with WidgetsBindingObserver {
   // Estados de ejemplo para la UI
   // _currentLanguage is now passed from parent
-  double _currentBPM = 180;
+  double _currentBPM = 130;
   bool _isPlaying = false;
   final Map<String, int> _instrumentVolumes = {
     'Clave': 2,
