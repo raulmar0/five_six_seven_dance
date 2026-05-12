@@ -30,7 +30,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageItem => 'Language';
 
   @override
-  String get appVersion => '567 Dance! v1.0.4';
+  String get appVersion => '567 Dance! v2.0';
 
   @override
   String get aboutTitle => 'About the App';
@@ -58,5 +58,61 @@ class AppLocalizationsEn extends AppLocalizations {
   String get voiceLabel => 'Voice';
 
   @override
-  String get versionBadge => 'VERSION 1.0';
+  String get versionBadge => 'VERSION 2.0';
+
+  @override
+  String get appSection => 'APP';
+
+  @override
+  String get installAppItem => 'Install App';
+
+  @override
+  String get checkForUpdatesItem => 'Check for Updates';
+
+  @override
+  String get updateAvailableItem => 'Update Available';
+
+  @override
+  String get installBannerTitle => 'Install 567 Dance!';
+
+  @override
+  String get installBannerSubtitle =>
+      'Use it offline, fullscreen, like a native app.';
+
+  @override
+  String get installBannerCta => 'Install';
+
+  @override
+  String get installBannerDismiss => 'Not now';
+
+  @override
+  String get iosInstallTitle => 'Install on iPhone / iPad';
+
+  @override
+  String get iosInstallStep1 => 'Tap the Share button at the bottom of Safari.';
+
+  @override
+  String get iosInstallStep2 => 'Scroll and tap \"Add to Home Screen\".';
+
+  @override
+  String get iosInstallStep3 => 'Tap \"Add\" to finish.';
+
+  @override
+  String get iosInstallClose => 'Got it';
+
+  @override
+  String get updateReadyTitle => 'Update ready';
+
+  @override
+  String get updateReadyMessage =>
+      'A new version is available. Reload to apply it.';
+
+  @override
+  String get updateReadyAction => 'Reload';
+
+  @override
+  String get checkingForUpdates => 'Checking for updates…';
+
+  @override
+  String get upToDate => 'You\'re up to date.';
 }

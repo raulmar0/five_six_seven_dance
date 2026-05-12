@@ -147,7 +147,7 @@ abstract class AppLocalizations {
   /// App version string
   ///
   /// In en, this message translates to:
-  /// **'567 Dance! v1.0.4'**
+  /// **'567 Dance! v2.0'**
   String get appVersion;
 
   /// Title for the about screen
@@ -201,8 +201,116 @@ abstract class AppLocalizations {
   /// Badge showing version number in about screen
   ///
   /// In en, this message translates to:
-  /// **'VERSION 1.0'**
+  /// **'VERSION 2.0'**
   String get versionBadge;
+
+  /// Section header for app-level options
+  ///
+  /// In en, this message translates to:
+  /// **'APP'**
+  String get appSection;
+
+  /// Menu item to install the PWA
+  ///
+  /// In en, this message translates to:
+  /// **'Install App'**
+  String get installAppItem;
+
+  /// Menu item to check for PWA updates
+  ///
+  /// In en, this message translates to:
+  /// **'Check for Updates'**
+  String get checkForUpdatesItem;
+
+  /// Menu item when an update is ready
+  ///
+  /// In en, this message translates to:
+  /// **'Update Available'**
+  String get updateAvailableItem;
+
+  /// Title of the install banner
+  ///
+  /// In en, this message translates to:
+  /// **'Install 567 Dance!'**
+  String get installBannerTitle;
+
+  /// Subtitle of the install banner
+  ///
+  /// In en, this message translates to:
+  /// **'Use it offline, fullscreen, like a native app.'**
+  String get installBannerSubtitle;
+
+  /// Install button on banner
+  ///
+  /// In en, this message translates to:
+  /// **'Install'**
+  String get installBannerCta;
+
+  /// Dismiss button on banner
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get installBannerDismiss;
+
+  /// Title of the iOS install instructions
+  ///
+  /// In en, this message translates to:
+  /// **'Install on iPhone / iPad'**
+  String get iosInstallTitle;
+
+  /// iOS step 1
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the Share button at the bottom of Safari.'**
+  String get iosInstallStep1;
+
+  /// iOS step 2
+  ///
+  /// In en, this message translates to:
+  /// **'Scroll and tap \"Add to Home Screen\".'**
+  String get iosInstallStep2;
+
+  /// iOS step 3
+  ///
+  /// In en, this message translates to:
+  /// **'Tap \"Add\" to finish.'**
+  String get iosInstallStep3;
+
+  /// Close iOS instructions
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get iosInstallClose;
+
+  /// Snackbar/dialog title when a PWA update is ready
+  ///
+  /// In en, this message translates to:
+  /// **'Update ready'**
+  String get updateReadyTitle;
+
+  /// Body when a PWA update is ready
+  ///
+  /// In en, this message translates to:
+  /// **'A new version is available. Reload to apply it.'**
+  String get updateReadyMessage;
+
+  /// Action to apply update
+  ///
+  /// In en, this message translates to:
+  /// **'Reload'**
+  String get updateReadyAction;
+
+  /// Snackbar while checking
+  ///
+  /// In en, this message translates to:
+  /// **'Checking for updates…'**
+  String get checkingForUpdates;
+
+  /// Snackbar when no update found
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re up to date.'**
+  String get upToDate;
 }
 
 class _AppLocalizationsDelegate

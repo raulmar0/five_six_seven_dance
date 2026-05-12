@@ -30,7 +30,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get languageItem => '언어';
 
   @override
-  String get appVersion => '567 Dance! v1.0.4';
+  String get appVersion => '567 Dance! v2.0';
 
   @override
   String get aboutTitle => '앱 정보';
@@ -58,5 +58,59 @@ class AppLocalizationsKo extends AppLocalizations {
   String get voiceLabel => '음성';
 
   @override
-  String get versionBadge => '버전 1.0';
+  String get versionBadge => '버전 2.0';
+
+  @override
+  String get appSection => '앱';
+
+  @override
+  String get installAppItem => '앱 설치';
+
+  @override
+  String get checkForUpdatesItem => '업데이트 확인';
+
+  @override
+  String get updateAvailableItem => '업데이트 가능';
+
+  @override
+  String get installBannerTitle => '567 Dance! 설치';
+
+  @override
+  String get installBannerSubtitle => '오프라인에서 전체 화면으로, 네이티브 앱처럼 사용하세요.';
+
+  @override
+  String get installBannerCta => '설치';
+
+  @override
+  String get installBannerDismiss => '나중에';
+
+  @override
+  String get iosInstallTitle => 'iPhone / iPad에 설치';
+
+  @override
+  String get iosInstallStep1 => 'Safari 하단의 공유 버튼을 누르세요.';
+
+  @override
+  String get iosInstallStep2 => '스크롤하여 \"홈 화면에 추가\"를 누르세요.';
+
+  @override
+  String get iosInstallStep3 => '\"추가\"를 눌러 완료하세요.';
+
+  @override
+  String get iosInstallClose => '확인';
+
+  @override
+  String get updateReadyTitle => '업데이트 준비됨';
+
+  @override
+  String get updateReadyMessage => '새 버전이 있습니다. 적용하려면 새로고침하세요.';
+
+  @override
+  String get updateReadyAction => '새로고침';
+
+  @override
+  String get checkingForUpdates => '업데이트 확인 중…';
+
+  @override
+  String get upToDate => '최신 상태입니다.';
 }

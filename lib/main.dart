@@ -6,6 +6,7 @@ import 'widgets/tempo_control_card.dart';
 import 'widgets/instrument_section.dart';
 import 'widgets/voice_count_section.dart';
 import 'widgets/section_title.dart';
+import 'widgets/install_banner.dart';
 import 'audio/audio_engine.dart';
 import 'audio/sequencer.dart';
 import 'screens/about_screen.dart';
@@ -234,85 +235,82 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen>
           ),
         ],
       ),
-      // Layout actualizado: Column con parte media expandida (instrumentos)
+      // Layout: install banner on top, then existing content
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // --- COMPONENTE 1: Tarjeta de Control de Tempo (FIJA) ---
-              TempoControlCard(
-                bpm: _currentBPM,
-                isPlaying: _isPlaying,
-                currentLanguage: widget.currentLanguage,
-                onPlayPause: () {
-                  setState(() {
-                    _isPlaying = !_isPlaying;
-                    if (_isPlaying) {
-                      _sequencer.play();
-                    } else {
-                      _sequencer.stop();
-                    }
-                  });
-                },
-                onBpmChanged: (val) {
-                  // Clamp to prevent slider crash
-                  final clampedBpm = val.clamp(60.0, 240.0);
-                  setState(() => _currentBPM = clampedBpm);
-                  _sequencer.setBpm(clampedBpm);
-                },
-                onLanguageChanged: (val) {
-                  widget.onLanguageChanged(val);
-                  _sequencer.setLanguage(val);
-                },
-              ),
-
-              const SizedBox(height: 30),
-
-              SectionTitle(
-                title: AppLocalizations.of(context)!.instrumentsLabel,
-              ),
-
-              const SizedBox(height: 16),
-
-              // --- COMPONENTE 2: Sección de Instrumentos (SCROLLABLE) ---
-              Expanded(
-                child: SingleChildScrollView(
-                  child: InstrumentSection(
-                    instrumentVolumes: _instrumentVolumes,
-                    onVolumeChanged: (name, volume) {
-                      setState(() {
-                        _instrumentVolumes[name] = volume;
-                      });
-                      _sequencer.updateInstrumentVolumes(_instrumentVolumes);
-                    },
-                  ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const InstallBanner(),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TempoControlCard(
+                      bpm: _currentBPM,
+                      isPlaying: _isPlaying,
+                      currentLanguage: widget.currentLanguage,
+                      onPlayPause: () {
+                        setState(() {
+                          _isPlaying = !_isPlaying;
+                          if (_isPlaying) {
+                            _sequencer.play();
+                          } else {
+                            _sequencer.stop();
+                          }
+                        });
+                      },
+                      onBpmChanged: (val) {
+                        final clampedBpm = val.clamp(60.0, 240.0);
+                        setState(() => _currentBPM = clampedBpm);
+                        _sequencer.setBpm(clampedBpm);
+                      },
+                      onLanguageChanged: (val) {
+                        widget.onLanguageChanged(val);
+                        _sequencer.setLanguage(val);
+                      },
+                    ),
+                    const SizedBox(height: 30),
+                    SectionTitle(
+                      title: AppLocalizations.of(context)!.instrumentsLabel,
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: InstrumentSection(
+                          instrumentVolumes: _instrumentVolumes,
+                          onVolumeChanged: (name, volume) {
+                            setState(() {
+                              _instrumentVolumes[name] = volume;
+                            });
+                            _sequencer.updateInstrumentVolumes(
+                              _instrumentVolumes,
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    VoiceCountSection(
+                      voiceStates: _voiceStates,
+                      volume: _voiceVolume,
+                      onVolumeChanged: (vol) {
+                        setState(() => _voiceVolume = vol);
+                        _sequencer.updateVoiceVolume(vol);
+                      },
+                      onVoiceToggled: (index) {
+                        setState(() {
+                          _voiceStates[index] = !_voiceStates[index];
+                        });
+                        _sequencer.updateVoicePattern(_voiceStates);
+                      },
+                    ),
+                  ],
                 ),
               ),
-
-              const SizedBox(height: 20),
-
-              // --- COMPONENTE 3: Sección de Conteo de Voz (FIJA) ---
-              // La altura depende del contenido, no expandimos
-              VoiceCountSection(
-                voiceStates: _voiceStates,
-                volume: _voiceVolume,
-                onVolumeChanged: (vol) {
-                  setState(() => _voiceVolume = vol);
-                  _sequencer.updateVoiceVolume(vol);
-                },
-                onVoiceToggled: (index) {
-                  setState(() {
-                    _voiceStates[index] = !_voiceStates[index];
-                  });
-                  _sequencer.updateVoicePattern(_voiceStates);
-                },
-              ),
-              // Espacio extra al final si se desea
-              // const SizedBox(height: 20),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

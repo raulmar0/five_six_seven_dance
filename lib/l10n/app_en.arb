@@ -27,7 +27,7 @@
   "@languageItem": {
     "description": "Menu item for Language selection"
   },
-  "appVersion": "567 Dance! v1.0.4",
+  "appVersion": "567 Dance! v2.0",
   "@appVersion": {
     "description": "App version string"
   },
@@ -63,8 +63,80 @@
   "@voiceLabel": {
     "description": "Label for the voice section"
   },
-  "versionBadge": "VERSION 1.0",
+  "versionBadge": "VERSION 2.0",
   "@versionBadge": {
     "description": "Badge showing version number in about screen"
+  },
+  "appSection": "APP",
+  "@appSection": {
+    "description": "Section header for app-level options"
+  },
+  "installAppItem": "Install App",
+  "@installAppItem": {
+    "description": "Menu item to install the PWA"
+  },
+  "checkForUpdatesItem": "Check for Updates",
+  "@checkForUpdatesItem": {
+    "description": "Menu item to check for PWA updates"
+  },
+  "updateAvailableItem": "Update Available",
+  "@updateAvailableItem": {
+    "description": "Menu item when an update is ready"
+  },
+  "installBannerTitle": "Install 567 Dance!",
+  "@installBannerTitle": {
+    "description": "Title of the install banner"
+  },
+  "installBannerSubtitle": "Use it offline, fullscreen, like a native app.",
+  "@installBannerSubtitle": {
+    "description": "Subtitle of the install banner"
+  },
+  "installBannerCta": "Install",
+  "@installBannerCta": {
+    "description": "Install button on banner"
+  },
+  "installBannerDismiss": "Not now",
+  "@installBannerDismiss": {
+    "description": "Dismiss button on banner"
+  },
+  "iosInstallTitle": "Install on iPhone / iPad",
+  "@iosInstallTitle": {
+    "description": "Title of the iOS install instructions"
+  },
+  "iosInstallStep1": "Tap the Share button at the bottom of Safari.",
+  "@iosInstallStep1": {
+    "description": "iOS step 1"
+  },
+  "iosInstallStep2": "Scroll and tap \"Add to Home Screen\".",
+  "@iosInstallStep2": {
+    "description": "iOS step 2"
+  },
+  "iosInstallStep3": "Tap \"Add\" to finish.",
+  "@iosInstallStep3": {
+    "description": "iOS step 3"
+  },
+  "iosInstallClose": "Got it",
+  "@iosInstallClose": {
+    "description": "Close iOS instructions"
+  },
+  "updateReadyTitle": "Update ready",
+  "@updateReadyTitle": {
+    "description": "Snackbar/dialog title when a PWA update is ready"
+  },
+  "updateReadyMessage": "A new version is available. Reload to apply it.",
+  "@updateReadyMessage": {
+    "description": "Body when a PWA update is ready"
+  },
+  "updateReadyAction": "Reload",
+  "@updateReadyAction": {
+    "description": "Action to apply update"
+  },
+  "checkingForUpdates": "Checking for updates…",
+  "@checkingForUpdates": {
+    "description": "Snackbar while checking"
+  },
+  "upToDate": "You're up to date.",
+  "@upToDate": {
+    "description": "Snackbar when no update found"
   }
 }

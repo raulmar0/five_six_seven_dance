@@ -30,7 +30,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get languageItem => 'Langue';
 
   @override
-  String get appVersion => '567 Dance! v1.0.4';
+  String get appVersion => '567 Dance! v2.0';
 
   @override
   String get aboutTitle => 'À propos de l\'app';
@@ -58,5 +58,62 @@ class AppLocalizationsFr extends AppLocalizations {
   String get voiceLabel => 'Voix';
 
   @override
-  String get versionBadge => 'VERSION 1.0';
+  String get versionBadge => 'VERSION 2.0';
+
+  @override
+  String get appSection => 'APP';
+
+  @override
+  String get installAppItem => 'Installer l\'app';
+
+  @override
+  String get checkForUpdatesItem => 'Rechercher des mises à jour';
+
+  @override
+  String get updateAvailableItem => 'Mise à jour disponible';
+
+  @override
+  String get installBannerTitle => 'Installez 567 Dance!';
+
+  @override
+  String get installBannerSubtitle =>
+      'Utilisez-la hors ligne, en plein écran, comme une app native.';
+
+  @override
+  String get installBannerCta => 'Installer';
+
+  @override
+  String get installBannerDismiss => 'Plus tard';
+
+  @override
+  String get iosInstallTitle => 'Installer sur iPhone / iPad';
+
+  @override
+  String get iosInstallStep1 => 'Touchez le bouton Partager en bas de Safari.';
+
+  @override
+  String get iosInstallStep2 =>
+      'Faites défiler et touchez « Sur l\'écran d\'accueil ».';
+
+  @override
+  String get iosInstallStep3 => 'Touchez « Ajouter » pour terminer.';
+
+  @override
+  String get iosInstallClose => 'Compris';
+
+  @override
+  String get updateReadyTitle => 'Mise à jour prête';
+
+  @override
+  String get updateReadyMessage =>
+      'Une nouvelle version est disponible. Rechargez pour l\'appliquer.';
+
+  @override
+  String get updateReadyAction => 'Recharger';
+
+  @override
+  String get checkingForUpdates => 'Recherche de mises à jour…';
+
+  @override
+  String get upToDate => 'Vous êtes à jour.';
 }

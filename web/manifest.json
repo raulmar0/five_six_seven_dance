@@ -1,14 +1,20 @@
 {
-    "name": "five_six_seven_dance",
-    "short_name": "five_six_seven_dance",
+    "name": "567 Dance!",
+    "short_name": "567 Dance!",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0f1115",
+    "theme_color": "#0f1115",
+    "description": "567 Dance! v2.0 — Latin dance practice companion with offline support.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
+        {
+            "src": "favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        },
         {
             "src": "icons/Icon-192.png",
             "sizes": "192x192",
