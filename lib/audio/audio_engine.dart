@@ -1,19 +1,91 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:audio_session/audio_session.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:logging/logging.dart';
+
+abstract class AudioBackend {
+  bool get isInitialized;
+
+  Future<void> init({
+    required int bufferSize,
+    required int sampleRate,
+    required Channels channels,
+  });
+
+  Future<AudioSource> loadAsset(String path);
+  Future<SoundHandle> play(AudioSource source, {double volume = 1.0});
+  Future<void> stop(SoundHandle handle);
+  void setRelativePlaySpeed(SoundHandle handle, double speed);
+  void deinit();
+}
+
+class FlutterSoloudBackend implements AudioBackend {
+  final SoLoud _soloud;
+
+  FlutterSoloudBackend([SoLoud? soloud]) : _soloud = soloud ?? SoLoud.instance;
+
+  @override
+  bool get isInitialized => _soloud.isInitialized;
+
+  @override
+  Future<void> init({
+    required int bufferSize,
+    required int sampleRate,
+    required Channels channels,
+  }) {
+    return _soloud.init(
+      bufferSize: bufferSize,
+      sampleRate: sampleRate,
+      channels: channels,
+    );
+  }
+
+  @override
+  Future<AudioSource> loadAsset(String path) => _soloud.loadAsset(path);
+
+  @override
+  Future<SoundHandle> play(AudioSource source, {double volume = 1.0}) {
+    return _soloud.play(source, volume: volume);
+  }
+
+  @override
+  Future<void> stop(SoundHandle handle) => _soloud.stop(handle);
+
+  @override
+  void setRelativePlaySpeed(SoundHandle handle, double speed) {
+    _soloud.setRelativePlaySpeed(handle, speed);
+  }
+
+  @override
+  void deinit() => _soloud.deinit();
+}
 
 class AudioEngine {
   static final AudioEngine _instance = AudioEngine._internal();
   factory AudioEngine() => _instance;
-  AudioEngine._internal();
+  AudioEngine._internal({
+    AudioBackend? backend,
+    int maxPendingPlaybackTasks = 24,
+  }) : _backend = backend ?? FlutterSoloudBackend(),
+       _maxPendingPlaybackTasks = maxPendingPlaybackTasks;
+
+  @visibleForTesting
+  AudioEngine.test({
+    required AudioBackend backend,
+    int maxPendingPlaybackTasks = 24,
+  }) : _backend = backend,
+       _maxPendingPlaybackTasks = maxPendingPlaybackTasks;
 
   final _log = Logger('AudioEngine');
+  final AudioBackend _backend;
+  final int _maxPendingPlaybackTasks;
   bool _isInitialized = false;
-
-  // SoLoud instance
-  late final SoLoud _soloud;
+  int _pendingPlaybackTasks = 0;
+  int _droppedPlaybackTasks = 0;
+  DateTime? _lastBackpressureLogAt;
+  int _playbackGeneration = 0;
 
   // Loaded Audio Sources (in memory)
   final Map<String, AudioSource> _loadedSources = {};
@@ -22,11 +94,14 @@ class AudioEngine {
   SoundHandle? _currentVoiceHandle;
 
   Future<void> initialize() async {
-    if (_isInitialized) return;
+    if (_isInitialized || _backend.isInitialized) {
+      _isInitialized = true;
+      return;
+    }
 
     try {
       // Configure audio session for iOS
-      if (Platform.isIOS) {
+      if (!kIsWeb && Platform.isIOS) {
         _log.fine('Configuring iOS audio session...');
         final session = await AudioSession.instance;
         await session.configure(
@@ -41,9 +116,8 @@ class AudioEngine {
         _log.info('iOS audio session configured and activated');
       }
 
-      _soloud = SoLoud.instance;
       // Configure for robustness
-      await _soloud.init(
+      await _backend.init(
         bufferSize: 2048,
         sampleRate: 44100,
         channels: Channels.stereo,
@@ -126,6 +200,8 @@ class AudioEngine {
       await _loadBatch(assets);
       _loadedLanguages.add(languageCode);
       _log.info('Loaded language: $languageCode');
+    } else {
+      _log.warning('No audio assets configured for language: $languageCode');
     }
   }
 
@@ -139,7 +215,7 @@ class AudioEngine {
 
       try {
         _log.fine('Loading asset: ${entry.key} from ${entry.value}');
-        final source = await _soloud.loadAsset(entry.value);
+        final source = await _backend.loadAsset(entry.value);
         _loadedSources[entry.key] = source;
         _log.fine('Loaded asset: ${entry.key}');
       } catch (e) {
@@ -154,48 +230,48 @@ class AudioEngine {
   /// Play a voice sample, stopping any previously playing voice first.
   /// Speed parameter adjusts playback rate using time-stretch (no pitch change).
   /// This avoids the "chipmunk effect" that occurs with setRelativePlaySpeed.
-  Future<void> playOneShot(
+  void playOneShot(
     String key, {
     double volume = 1.0,
     double speed = 1.0,
-  }) async {
+  }) {
     final source = _loadedSources[key];
     if (source == null) {
       _log.warning('Asset not found for key: $key');
       return;
     }
-    try {
+    _enqueuePlayback('voice $key', () async {
+      final generation = _playbackGeneration;
       // Stop previous voice to prevent overlapping
       if (_currentVoiceHandle != null) {
-        try {
-          _soloud.stop(_currentVoiceHandle!);
-        } catch (_) {
-          // Handle might already be invalid, ignore
-        }
+        await _stopHandle(_currentVoiceHandle!);
       }
 
       // Use setRelativePlaySpeed for speed adjustment
       // Note: For true pitch-preserving time stretch, we would need
       // to apply pitchShiftFilter, but that adds latency.
       // For now, we limit max speed to reduce chipmunk effect.
-      _currentVoiceHandle = await _soloud.play(source, volume: volume);
+      final handle = await _backend.play(source, volume: volume);
+      if (generation != _playbackGeneration) {
+        await _stopHandle(handle);
+        return;
+      }
+      _currentVoiceHandle = handle;
 
       // Clamp speed to reasonable range to minimize pitch distortion
       // Higher speeds sound more "chipmunk", so we limit it
       final clampedSpeed = speed.clamp(0.8, 1.5);
       if (clampedSpeed != 1.0) {
-        _soloud.setRelativePlaySpeed(_currentVoiceHandle!, clampedSpeed);
+        _backend.setRelativePlaySpeed(handle, clampedSpeed);
       }
-    } catch (e) {
-      _log.severe('Error playing OneShot $key: $e');
-    }
+    });
   }
 
   /// Play an instrument sample once. The sequencer handles when to trigger each instrument.
-  Future<void> playInstrument(
+  void playInstrument(
     String instrumentKey, {
     double volume = 1.0,
-  }) async {
+  }) {
     if (volume <= 0) {
       _log.fine('playInstrument($instrumentKey) skipped - volume is 0');
       return;
@@ -207,26 +283,77 @@ class AudioEngine {
       return;
     }
 
-    try {
+    _enqueuePlayback('instrument $instrumentKey', () async {
+      final generation = _playbackGeneration;
       _log.fine('playInstrument($instrumentKey) volume=$volume');
-      final handle = await _soloud.play(source, volume: volume);
+      final handle = await _backend.play(source, volume: volume);
+      if (generation != _playbackGeneration) {
+        await _stopHandle(handle);
+        return;
+      }
       _log.fine('playInstrument($instrumentKey) handle=$handle');
-    } catch (e) {
-      _log.severe('Error playing instrument $instrumentKey: $e');
-    }
+    });
   }
 
   void stopAll() {
-    // Stop any playing voice
+    _playbackGeneration++;
+    final handles = <SoundHandle>{};
+    for (final source in _loadedSources.values) {
+      handles.addAll(source.handles);
+    }
     if (_currentVoiceHandle != null) {
-      try {
-        _soloud.stop(_currentVoiceHandle!);
-      } catch (_) {}
-      _currentVoiceHandle = null;
+      handles.add(_currentVoiceHandle!);
+    }
+
+    _currentVoiceHandle = null;
+    for (final handle in handles) {
+      unawaited(_stopHandle(handle));
+    }
+  }
+
+  void _enqueuePlayback(String label, Future<void> Function() task) {
+    if (_pendingPlaybackTasks >= _maxPendingPlaybackTasks) {
+      _droppedPlaybackTasks++;
+      _logBackpressure(label);
+      return;
+    }
+
+    _pendingPlaybackTasks++;
+    unawaited(
+      Future<void>(() async {
+        try {
+          await task();
+        } catch (e, stackTrace) {
+          _log.warning('Playback task failed for $label', e, stackTrace);
+        } finally {
+          _pendingPlaybackTasks--;
+        }
+      }),
+    );
+  }
+
+  void _logBackpressure(String label) {
+    final now = DateTime.now();
+    final last = _lastBackpressureLogAt;
+    if (last != null && now.difference(last) < const Duration(seconds: 2)) {
+      return;
+    }
+    _lastBackpressureLogAt = now;
+    _log.warning(
+      'Dropping playback task for $label; '
+      'pending=$_pendingPlaybackTasks, dropped=$_droppedPlaybackTasks',
+    );
+  }
+
+  Future<void> _stopHandle(SoundHandle handle) async {
+    try {
+      await _backend.stop(handle);
+    } catch (e, stackTrace) {
+      _log.fine('Ignoring stop failure for handle $handle', e, stackTrace);
     }
   }
 
   void dispose() {
-    _soloud.deinit();
+    _backend.deinit();
   }
 }

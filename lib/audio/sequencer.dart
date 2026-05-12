@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 import 'audio_engine.dart';
@@ -57,9 +58,83 @@ class SalsaRhythmPattern {
   }
 }
 
+abstract class SequencerClock {
+  int get elapsedMilliseconds;
+  void reset();
+  void start();
+  void stop();
+}
+
+class StopwatchSequencerClock implements SequencerClock {
+  final Stopwatch _stopwatch = Stopwatch();
+
+  @override
+  int get elapsedMilliseconds => _stopwatch.elapsedMilliseconds;
+
+  @override
+  void reset() => _stopwatch.reset();
+
+  @override
+  void start() => _stopwatch.start();
+
+  @override
+  void stop() => _stopwatch.stop();
+}
+
+abstract class SequencerScheduler {
+  void schedule(Duration delay, VoidCallback callback);
+  void cancel();
+}
+
+class TimerSequencerScheduler implements SequencerScheduler {
+  Timer? _timer;
+
+  @override
+  void schedule(Duration delay, VoidCallback callback) {
+    _timer?.cancel();
+    _timer = Timer(delay, callback);
+  }
+
+  @override
+  void cancel() {
+    _timer?.cancel();
+    _timer = null;
+  }
+}
+
+abstract class SequencerPlayback {
+  void playInstrument(String instrumentKey, {double volume = 1.0});
+  void playOneShot(String key, {double volume = 1.0, double speed = 1.0});
+  void stopAll();
+}
+
+class AudioEngineSequencerPlayback implements SequencerPlayback {
+  final AudioEngine _audioEngine;
+
+  AudioEngineSequencerPlayback([AudioEngine? audioEngine])
+    : _audioEngine = audioEngine ?? AudioEngine();
+
+  @override
+  void playInstrument(String instrumentKey, {double volume = 1.0}) {
+    _audioEngine.playInstrument(instrumentKey, volume: volume);
+  }
+
+  @override
+  void playOneShot(String key, {double volume = 1.0, double speed = 1.0}) {
+    _audioEngine.playOneShot(key, volume: volume, speed: speed);
+  }
+
+  @override
+  void stopAll() {
+    _audioEngine.stopAll();
+  }
+}
+
 class Sequencer {
   final Logger _log = Logger('Sequencer');
-  final AudioEngine _audioEngine = AudioEngine();
+  final SequencerPlayback _playback;
+  final SequencerClock _clock;
+  final SequencerScheduler _scheduler;
 
   // State
   bool isPlaying = false;
@@ -67,9 +142,8 @@ class Sequencer {
   String language = 'es'; // 'es', 'en', 'fr'
 
   // Timer vars
-  int _startTime = 0;
+  int _startElapsedMs = 0;
   int _currentStepGlobal = 0; // Absolute step count since start
-  Timer? _timer;
 
   // Callbacks
   final VoidCallback onStep; // To notify UI if needed (e.g. flashing lights)
@@ -79,15 +153,20 @@ class Sequencer {
   Map<String, int> instrumentVolumes = {};
   int voiceVolume = 4; // 0-4 range
 
-  Sequencer({required this.onStep});
+  Sequencer({
+    required this.onStep,
+    SequencerPlayback? playback,
+    SequencerClock? clock,
+    SequencerScheduler? scheduler,
+  }) : _playback = playback ?? AudioEngineSequencerPlayback(),
+       _clock = clock ?? StopwatchSequencerClock(),
+       _scheduler = scheduler ?? TimerSequencerScheduler();
 
   void setBpm(double newBpm) {
     if (isPlaying) {
-      final now = DateTime.now().millisecondsSinceEpoch;
-      // 16 steps over 8 beats = 2 steps per beat
-      double newSecPerStep = (60.0 / newBpm) / 2;
+      final now = _clock.elapsedMilliseconds;
       // Re-anchor start time to maintain position
-      _startTime = now - (_currentStepGlobal * newSecPerStep * 1000).round();
+      _startElapsedMs = now - (_currentStepGlobal * _msPerStep(newBpm)).round();
     }
     bpm = newBpm;
   }
@@ -113,15 +192,18 @@ class Sequencer {
     if (isPlaying) return;
     isPlaying = true;
     _currentStepGlobal = 0;
-    _startTime = DateTime.now().millisecondsSinceEpoch;
+    _clock.reset();
+    _clock.start();
+    _startElapsedMs = _clock.elapsedMilliseconds;
     _scheduleNextBeat();
   }
 
   void stop() {
     _log.fine('Sequencer.stop() called');
     isPlaying = false;
-    _timer?.cancel();
-    _audioEngine.stopAll();
+    _scheduler.cancel();
+    _clock.stop();
+    _playback.stopAll();
   }
 
   void _scheduleNextBeat() {
@@ -135,21 +217,13 @@ class Sequencer {
 
     _currentStepGlobal++;
 
-    // Interval Calculation:
-    // BPM is beats per minute. 1 Beat = one of the 8 counts.
-    // We have 16 steps over 8 beats = 2 steps per beat.
-    // Seconds per Step = (60 / BPM) / 2
-    double secPerStep = (60.0 / bpm) / 2;
-    int intervalMs = (secPerStep * 1000).round();
-
-    int nextExpectedTime = _startTime + (_currentStepGlobal * intervalMs);
-    int now = DateTime.now().millisecondsSinceEpoch;
-    int waitTime = nextExpectedTime - now;
+    final nextExpectedElapsed =
+        _startElapsedMs + (_currentStepGlobal * _msPerStep(bpm)).round();
+    final now = _clock.elapsedMilliseconds;
+    final waitTime = math.max(0, nextExpectedElapsed - now);
 
     // Drift correction: if lagging, execute immediately
-    if (waitTime < 0) waitTime = 0;
-
-    _timer = Timer(Duration(milliseconds: waitTime), _scheduleNextBeat);
+    _scheduler.schedule(Duration(milliseconds: waitTime), _scheduleNextBeat);
   }
 
   void _playSoundsForStep(int stepIndex) {
@@ -162,7 +236,7 @@ class Sequencer {
       if (volumeLevel > 0) {
         // Map 0-4 to 0.0-1.0
         final normalizedVolume = volumeLevel / 4.0;
-        _audioEngine.playInstrument(instrument, volume: normalizedVolume);
+        _playback.playInstrument(instrument, volume: normalizedVolume);
       }
     }
 
@@ -177,7 +251,7 @@ class Sequencer {
         // Calculate volume (0-4 -> 0.0-1.0)
         final normalizedVolume = voiceVolume / 4.0;
 
-        _audioEngine.playOneShot(
+        _playback.playOneShot(
           '${language}_$beatNum',
           volume: normalizedVolume,
           speed: voiceSpeed,
@@ -218,5 +292,11 @@ class Sequencer {
     // Formula: speed = minSpeed + (bpm - minBpm) / (maxBpm - minBpm) * (maxSpeed - minSpeed)
     final double t = (bpm - minBpm) / (maxBpm - minBpm);
     return minSpeed + t * (maxSpeed - minSpeed);
+  }
+
+  double _msPerStep(double bpm) {
+    // BPM is beats per minute. 1 Beat = one of the 8 counts.
+    // We have 16 steps over 8 beats = 2 steps per beat.
+    return (60.0 / bpm) * 500;
   }
 }
