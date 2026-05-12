@@ -40,7 +40,7 @@ class AboutScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
+                      color: Colors.black.withValues(alpha: 0.2),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
@@ -79,7 +79,7 @@ class AboutScreen extends StatelessWidget {
                   color: const Color(0xFF3E342F),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: AppColors.primaryOrange.withOpacity(0.3),
+                    color: AppColors.primaryOrange.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -120,7 +120,7 @@ class AboutScreen extends StatelessWidget {
               Text(
                 AppLocalizations.of(context)!.developerTitle,
                 style: TextStyle(
-                  color: AppColors.textSecondary.withOpacity(0.6),
+                  color: AppColors.textSecondary.withValues(alpha: 0.6),
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.2,
@@ -139,7 +139,10 @@ class AboutScreen extends StatelessWidget {
               const SizedBox(height: 32),
 
               // Divider
-              Divider(color: Colors.white.withOpacity(0.05), thickness: 1),
+              Divider(
+                color: Colors.white.withValues(alpha: 0.05),
+                thickness: 1,
+              ),
 
               const SizedBox(height: 32),
 
@@ -147,7 +150,7 @@ class AboutScreen extends StatelessWidget {
               Text(
                 AppLocalizations.of(context)!.contactTitle,
                 style: TextStyle(
-                  color: AppColors.textSecondary.withOpacity(0.6),
+                  color: AppColors.textSecondary.withValues(alpha: 0.6),
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.2,
@@ -161,7 +164,7 @@ class AboutScreen extends StatelessWidget {
                   final Uri url = Uri.parse('https://raulmar.com');
                   if (!await launchUrl(url)) {
                     // Could show a snackbar here if desired, but keeping it simple
-                    print('Could not launch $url');
+                    debugPrint('Could not launch $url');
                   }
                 },
                 child: Row(

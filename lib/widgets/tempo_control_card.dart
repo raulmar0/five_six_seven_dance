@@ -152,7 +152,9 @@ class TempoControlCard extends StatelessWidget {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primaryOrange.withOpacity(0.4),
+                            color: AppColors.primaryOrange.withValues(
+                              alpha: 0.4,
+                            ),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),

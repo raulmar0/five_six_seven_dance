@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:logging/logging.dart';
 import 'audio_engine.dart';
 
 /// Salsa rhythm pattern definition.
@@ -57,6 +58,7 @@ class SalsaRhythmPattern {
 }
 
 class Sequencer {
+  final Logger _log = Logger('Sequencer');
   final AudioEngine _audioEngine = AudioEngine();
 
   // State
@@ -107,7 +109,7 @@ class Sequencer {
   }
 
   void play() {
-    print('▶️ Sequencer.play() called');
+    _log.fine('Sequencer.play() called');
     if (isPlaying) return;
     isPlaying = true;
     _currentStepGlobal = 0;
@@ -116,7 +118,7 @@ class Sequencer {
   }
 
   void stop() {
-    print('⏹️ Sequencer.stop() called');
+    _log.fine('Sequencer.stop() called');
     isPlaying = false;
     _timer?.cancel();
     _audioEngine.stopAll();

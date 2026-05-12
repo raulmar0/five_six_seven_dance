@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import '../app_routes.dart';
 import '../theme/app_colors.dart';
-import 'about_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:five_six_seven_dance/l10n/app_localizations.dart';
 
@@ -36,7 +36,7 @@ class SettingsScreen extends StatelessWidget {
               Text(
                 AppLocalizations.of(context)!.supportInfoSection,
                 style: TextStyle(
-                  color: AppColors.textSecondary.withOpacity(0.7),
+                  color: AppColors.textSecondary.withValues(alpha: 0.7),
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.2,
@@ -74,12 +74,7 @@ class SettingsScreen extends StatelessWidget {
                       icon: Icons.info_outline,
                       title: AppLocalizations.of(context)!.aboutAppItem,
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const AboutScreen(),
-                          ),
-                        );
+                        Navigator.pushNamed(context, AppRoutes.about);
                       },
                     ),
                     _buildDivider(),
@@ -103,7 +98,7 @@ class SettingsScreen extends StatelessWidget {
                 child: Text(
                   AppLocalizations.of(context)!.appVersion,
                   style: TextStyle(
-                    color: AppColors.textSecondary.withOpacity(0.5),
+                    color: AppColors.textSecondary.withValues(alpha: 0.5),
                     fontSize: 13,
                   ),
                 ),
@@ -153,7 +148,7 @@ class SettingsScreen extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.textSecondary.withOpacity(0.3),
+                  color: AppColors.textSecondary.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -194,7 +189,9 @@ class SettingsScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryOrange.withOpacity(0.1) : null,
+          color: isSelected
+              ? AppColors.primaryOrange.withValues(alpha: 0.1)
+              : null,
         ),
         child: Row(
           children: [
@@ -228,7 +225,7 @@ class SettingsScreen extends StatelessWidget {
     );
 
     if (!await launchUrl(emailLaunchUri)) {
-      print('Could not launch email');
+      debugPrint('Could not launch email');
     }
   }
 
@@ -236,7 +233,7 @@ class SettingsScreen extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(left: 56), // Align with text
       height: 1,
-      color: Colors.white.withOpacity(0.05),
+      color: Colors.white.withValues(alpha: 0.05),
     );
   }
 
@@ -285,7 +282,7 @@ class SettingsScreen extends StatelessWidget {
               // Chevron
               Icon(
                 Icons.chevron_right,
-                color: AppColors.textSecondary.withOpacity(0.5),
+                color: AppColors.textSecondary.withValues(alpha: 0.5),
                 size: 24,
               ),
             ],

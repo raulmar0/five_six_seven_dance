@@ -27,7 +27,7 @@ class AudioEngine {
     try {
       // Configure audio session for iOS
       if (Platform.isIOS) {
-        print('🎵 Configuring iOS audio session...');
+        _log.fine('Configuring iOS audio session...');
         final session = await AudioSession.instance;
         await session.configure(
           const AudioSessionConfiguration(
@@ -38,7 +38,7 @@ class AudioEngine {
           ),
         );
         await session.setActive(true);
-        print('✅ iOS audio session configured and activated');
+        _log.info('iOS audio session configured and activated');
       }
 
       _soloud = SoLoud.instance;
@@ -49,10 +49,8 @@ class AudioEngine {
         channels: Channels.stereo,
       );
       _isInitialized = true;
-      print('✅ AudioEngine initialized successfully');
       _log.info('AudioEngine initialized successfully');
     } catch (e) {
-      print('❌ AudioEngine initialization failed: $e');
       _log.severe('AudioEngine initialization failed: $e');
       return; // Return early if initialization fails
     }
@@ -62,12 +60,12 @@ class AudioEngine {
   final Set<String> _loadedLanguages = {};
 
   Future<void> loadBaseAssets() async {
-    print('🎵 loadBaseAssets() called');
+    _log.fine('loadBaseAssets() called');
     if (!_isInitialized) {
-      print('🎵 Engine not initialized, initializing now...');
+      _log.fine('Engine not initialized, initializing now...');
       await initialize();
     }
-    print('🎵 Engine initialized: $_isInitialized');
+    _log.fine('Engine initialized: $_isInitialized');
 
     final assets = {
       // Instruments
@@ -97,7 +95,7 @@ class AudioEngine {
   Future<void> loadLanguageAssets(String languageCode) async {
     if (_loadedLanguages.contains(languageCode)) return;
 
-    print('⏳ Loading language assets for: $languageCode');
+    _log.fine('Loading language assets for: $languageCode');
     Map<String, String> assets = {};
 
     if (languageCode == 'en') {
@@ -127,30 +125,29 @@ class AudioEngine {
     if (assets.isNotEmpty) {
       await _loadBatch(assets);
       _loadedLanguages.add(languageCode);
-      print('✅ Loaded language: $languageCode');
+      _log.info('Loaded language: $languageCode');
     }
   }
 
   Future<void> _loadBatch(Map<String, String> assets) async {
-    print('🎵 _loadBatch: Starting to load ${assets.length} assets');
+    _log.fine('_loadBatch: Starting to load ${assets.length} assets');
     for (final entry in assets.entries) {
       if (_loadedSources.containsKey(entry.key)) {
-        print('🎵 Asset ${entry.key} already loaded, skipping');
+        _log.fine('Asset ${entry.key} already loaded, skipping');
         continue;
       }
 
       try {
-        print('🎵 Loading asset: ${entry.key} from ${entry.value}');
+        _log.fine('Loading asset: ${entry.key} from ${entry.value}');
         final source = await _soloud.loadAsset(entry.value);
         _loadedSources[entry.key] = source;
-        print('✅ Loaded asset: ${entry.key}');
+        _log.fine('Loaded asset: ${entry.key}');
       } catch (e) {
-        print('❌ Error loading asset ${entry.key}: $e');
         _log.severe('Error loading asset ${entry.key}: $e');
       }
     }
-    print(
-      '🎵 _loadBatch: Completed. Total loaded sources: ${_loadedSources.length}',
+    _log.fine(
+      '_loadBatch: Completed. Total loaded sources: ${_loadedSources.length}',
     );
   }
 
@@ -164,7 +161,6 @@ class AudioEngine {
   }) async {
     final source = _loadedSources[key];
     if (source == null) {
-      print('⚠️ Asset not found for key: $key');
       _log.warning('Asset not found for key: $key');
       return;
     }
@@ -191,7 +187,7 @@ class AudioEngine {
         _soloud.setRelativePlaySpeed(_currentVoiceHandle!, clampedSpeed);
       }
     } catch (e) {
-      print('❌ Error playing OneShot $key: $e');
+      _log.severe('Error playing OneShot $key: $e');
     }
   }
 
@@ -201,23 +197,21 @@ class AudioEngine {
     double volume = 1.0,
   }) async {
     if (volume <= 0) {
-      print('🔇 playInstrument($instrumentKey) skipped - volume is 0');
+      _log.fine('playInstrument($instrumentKey) skipped - volume is 0');
       return;
     }
 
     final source = _loadedSources[instrumentKey];
     if (source == null) {
-      print('⚠️ playInstrument($instrumentKey) - source not found!');
       _log.warning('Instrument asset not found: $instrumentKey');
       return;
     }
 
     try {
-      print('🎵 playInstrument($instrumentKey) volume=$volume');
+      _log.fine('playInstrument($instrumentKey) volume=$volume');
       final handle = await _soloud.play(source, volume: volume);
-      print('✅ playInstrument($instrumentKey) handle=$handle');
+      _log.fine('playInstrument($instrumentKey) handle=$handle');
     } catch (e) {
-      print('❌ playInstrument($instrumentKey) error: $e');
       _log.severe('Error playing instrument $instrumentKey: $e');
     }
   }

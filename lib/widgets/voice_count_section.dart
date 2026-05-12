@@ -47,7 +47,7 @@ class VoiceCountSection extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.inactiveButton.withOpacity(0.3),
+                    color: AppColors.inactiveButton.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -154,14 +154,14 @@ class VoiceGridButton extends StatelessWidget {
                   end: Alignment.bottomRight,
                   colors: [
                     AppColors.primaryOrange,
-                    AppColors.primaryOrange.withOpacity(0.8),
+                    AppColors.primaryOrange.withValues(alpha: 0.8),
                   ],
                 )
               : null,
           boxShadow: isActive
               ? [
                   BoxShadow(
-                    color: AppColors.primaryOrange.withOpacity(0.3),
+                    color: AppColors.primaryOrange.withValues(alpha: 0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'app_routes.dart';
 import 'theme/app_colors.dart';
 import 'widgets/tempo_control_card.dart';
 import 'widgets/instrument_section.dart';
@@ -6,6 +7,7 @@ import 'widgets/voice_count_section.dart';
 import 'widgets/section_title.dart';
 import 'audio/audio_engine.dart';
 import 'audio/sequencer.dart';
+import 'screens/about_screen.dart';
 import 'screens/settings_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:five_six_seven_dance/l10n/app_localizations.dart';
@@ -37,6 +39,45 @@ class _SalsaMixerAppState extends State<SalsaMixerApp> {
     });
     // Also load audio assets for the new language
     AudioEngine().loadLanguageAssets(languageCode);
+  }
+
+  Route<void> _buildRoute(RouteSettings settings, Widget child) {
+    return MaterialPageRoute<void>(
+      settings: settings,
+      builder: (context) => child,
+    );
+  }
+
+  Route<void> _onGenerateRoute(RouteSettings settings) {
+    switch (settings.name) {
+      case AppRoutes.home:
+      case null:
+        return _buildRoute(
+          settings,
+          SalsaMixerScreen(
+            currentLanguage: _locale.languageCode,
+            onLanguageChanged: _changeLanguage,
+          ),
+        );
+      case AppRoutes.settings:
+        return _buildRoute(
+          settings,
+          SettingsScreen(
+            currentLanguage: _locale.languageCode,
+            onLanguageChanged: _changeLanguage,
+          ),
+        );
+      case AppRoutes.about:
+        return _buildRoute(settings, const AboutScreen());
+      default:
+        return _buildRoute(
+          const RouteSettings(name: AppRoutes.home),
+          SalsaMixerScreen(
+            currentLanguage: _locale.languageCode,
+            onLanguageChanged: _changeLanguage,
+          ),
+        );
+    }
   }
 
   @override
@@ -76,14 +117,11 @@ class _SalsaMixerAppState extends State<SalsaMixerApp> {
           activeTrackColor: AppColors.primaryOrange,
           inactiveTrackColor: AppColors.inactiveButton,
           thumbColor: AppColors.textPrimary,
-          overlayColor: AppColors.primaryOrange.withOpacity(0.2),
+          overlayColor: AppColors.primaryOrange.withValues(alpha: 0.2),
           trackHeight: 4.0,
         ),
       ),
-      home: SalsaMixerScreen(
-        currentLanguage: _locale.languageCode,
-        onLanguageChanged: _changeLanguage,
-      ),
+      onGenerateRoute: _onGenerateRoute,
     );
   }
 }
@@ -111,7 +149,7 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen>
   // _currentLanguage is now passed from parent
   double _currentBPM = 180;
   bool _isPlaying = false;
-  Map<String, int> _instrumentVolumes = {
+  final Map<String, int> _instrumentVolumes = {
     'Clave': 2,
     'Guiro': 2, // Also controls ShortGuiro
     'Bongo': 2, // Also controls ShortBongo
@@ -120,7 +158,7 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen>
   };
   int _voiceVolume = 4; // 0-4
   // Indices 0, 2, 4, 6 corresponden a los números 1, 3, 5, 7
-  List<bool> _voiceStates = [
+  final List<bool> _voiceStates = [
     true,
     false,
     true,
@@ -160,7 +198,7 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen>
         state == AppLifecycleState.inactive ||
         state == AppLifecycleState.hidden) {
       if (_isPlaying) {
-        print('📱 App went to background, stopping playback');
+        debugPrint('App went to background, stopping playback');
         _sequencer.stop();
         setState(() {
           _isPlaying = false;
@@ -186,15 +224,7 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen>
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SettingsScreen(
-                    currentLanguage: widget.currentLanguage,
-                    onLanguageChanged: widget.onLanguageChanged,
-                  ),
-                ),
-              );
+              Navigator.pushNamed(context, AppRoutes.settings);
             },
           ),
         ],

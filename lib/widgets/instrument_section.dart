@@ -25,7 +25,7 @@ class InstrumentSection extends StatelessWidget {
             volume: entry.value,
             onVolumeChanged: (newVol) => onVolumeChanged(entry.key, newVol),
           );
-        }).toList(),
+        }),
       ],
     );
   }
@@ -69,7 +69,7 @@ class InstrumentTile extends StatelessWidget {
         : AppColors.textSecondary;
     final Color iconBgColor = isActive
         ? AppColors.instrumentIconBg
-        : AppColors.inactiveButton.withOpacity(0.5);
+        : AppColors.inactiveButton.withValues(alpha: 0.5);
 
     return GestureDetector(
       onTap: handleTap,
@@ -138,8 +138,8 @@ class InstrumentTile extends StatelessWidget {
             CupertinoSwitch(
               value: isActive,
               onChanged: (val) => onVolumeChanged(val ? 1 : 0),
-              activeColor: AppColors.primaryOrange,
-              trackColor: AppColors.inactiveButton,
+              activeTrackColor: AppColors.primaryOrange,
+              inactiveTrackColor: AppColors.inactiveButton,
             ),
           ],
         ),

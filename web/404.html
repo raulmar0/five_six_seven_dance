@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>567 Dance!</title>
+  <script>
+    (function () {
+      var base = '/five_six_seven_dance/';
+      var path = window.location.pathname;
+      var route = path.indexOf(base) === 0 ? path.substring(base.length) : '';
+      var target = route
+        ? base + '#/' + route + window.location.search + window.location.hash
+        : base;
+      window.location.replace(target);
+    })();
+  </script>
+</head>
+<body>
+  <a href="/five_six_seven_dance/">567 Dance!</a>
+</body>
+</html>

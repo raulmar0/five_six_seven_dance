@@ -6,10 +6,16 @@ import 'package:five_six_seven_dance/widgets/voice_count_section.dart';
 import 'package:flutter/cupertino.dart';
 
 void main() {
-  testWidgets('Salsa Mixer UI smoke test', (WidgetTester tester) async {
-    // Set a larger screen size for the test to avoid overflow on fixed sections
+  void setLargeTestScreen(WidgetTester tester) {
     tester.view.physicalSize = const Size(1200, 2400);
     tester.view.devicePixelRatio = 2.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+  }
+
+  testWidgets('Salsa Mixer UI smoke test', (WidgetTester tester) async {
+    // Set a larger screen size for the test to avoid overflow on fixed sections
+    setLargeTestScreen(tester);
 
     // Build our app and trigger a frame.
     await tester.pumpWidget(const SalsaMixerApp());
@@ -23,23 +29,22 @@ void main() {
     expect(find.text('BPM'), findsOneWidget);
 
     // Verify Instrument Section
-    expect(find.text('INSTRUMENTOS'), findsOneWidget);
+    expect(find.text('Instrumentos'), findsOneWidget);
     expect(find.text('Clave'), findsOneWidget);
     expect(find.text('Guiro'), findsOneWidget);
-    expect(find.text('Guitar'), findsOneWidget);
+    expect(find.text('Bass'), findsOneWidget);
     expect(find.text('Bongo'), findsOneWidget);
     expect(find.text('Cowbell'), findsOneWidget);
 
     // Verify Voice Count Section
-    expect(find.text('CONTEO DE VOZ'), findsOneWidget);
+    expect(find.text('VOZ'), findsOneWidget);
     for (int i = 1; i <= 8; i++) {
       expect(find.text('$i'), findsOneWidget);
     }
   });
 
   testWidgets('Tempo control interactions', (WidgetTester tester) async {
-    tester.view.physicalSize = const Size(1200, 2400);
-    tester.view.devicePixelRatio = 2.0;
+    setLargeTestScreen(tester);
     await tester.pumpWidget(const SalsaMixerApp());
 
     // Initial BPM
@@ -69,19 +74,14 @@ void main() {
   testWidgets('Instrument volume and cycle interactions', (
     WidgetTester tester,
   ) async {
-    tester.view.physicalSize = const Size(1200, 2400);
-    tester.view.devicePixelRatio = 2.0;
+    setLargeTestScreen(tester);
     await tester.pumpWidget(const SalsaMixerApp());
 
-    // Find Bongo (initial volume 0)
+    // Find Bongo (initial volume 2)
     final bongoTileFinder = find.widgetWithText(InstrumentTile, 'Bongo');
     expect(bongoTileFinder, findsOneWidget);
 
-    // Tap to set volume to 1
-    await tester.tap(bongoTileFinder);
-    await tester.pump();
-
-    // Tap 3 more times to reach volume 4
+    // Tap three times to cycle 2 -> 3 -> 4 -> 0
     await tester.tap(bongoTileFinder);
     await tester.pump();
     await tester.tap(bongoTileFinder);
@@ -89,25 +89,81 @@ void main() {
     await tester.tap(bongoTileFinder);
     await tester.pump();
 
-    // Verify it's active (switch should be true)
     final switchFinder = find.descendant(
       of: bongoTileFinder,
       matching: find.byType(CupertinoSwitch),
     );
     CupertinoSwitch bongoSwitch = tester.widget(switchFinder);
-    expect(bongoSwitch.value, isTrue);
+    expect(bongoSwitch.value, isFalse);
 
-    // Tap once more to cycle back to 0
+    // Tap once more to cycle back to volume 1
     await tester.tap(bongoTileFinder);
     await tester.pump();
 
     bongoSwitch = tester.widget(switchFinder);
-    expect(bongoSwitch.value, isFalse);
+    expect(bongoSwitch.value, isTrue);
+  });
+
+  testWidgets('opens settings with a named route', (WidgetTester tester) async {
+    setLargeTestScreen(tester);
+    await tester.pumpWidget(const SalsaMixerApp());
+
+    await tester.tap(find.byIcon(Icons.settings));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Configuración'), findsOneWidget);
+    expect(find.text('Centro de Ayuda'), findsOneWidget);
+  });
+
+  testWidgets('supports settings as an initial route', (
+    WidgetTester tester,
+  ) async {
+    setLargeTestScreen(tester);
+    tester.binding.platformDispatcher.defaultRouteNameTestValue = '/settings';
+    addTearDown(
+      tester.binding.platformDispatcher.clearDefaultRouteNameTestValue,
+    );
+
+    await tester.pumpWidget(const SalsaMixerApp());
+    await tester.pumpAndSettle();
+
+    expect(find.text('Configuración'), findsOneWidget);
+  });
+
+  testWidgets('supports about as an initial route', (
+    WidgetTester tester,
+  ) async {
+    setLargeTestScreen(tester);
+    tester.binding.platformDispatcher.defaultRouteNameTestValue = '/about';
+    addTearDown(
+      tester.binding.platformDispatcher.clearDefaultRouteNameTestValue,
+    );
+
+    await tester.pumpWidget(const SalsaMixerApp());
+    await tester.pumpAndSettle();
+
+    expect(find.text('Sobre la App'), findsOneWidget);
+    expect(find.text('Latin Dance Trainer'), findsOneWidget);
+  });
+
+  testWidgets('unknown initial routes fall back to home', (
+    WidgetTester tester,
+  ) async {
+    setLargeTestScreen(tester);
+    tester.binding.platformDispatcher.defaultRouteNameTestValue = '/missing';
+    addTearDown(
+      tester.binding.platformDispatcher.clearDefaultRouteNameTestValue,
+    );
+
+    await tester.pumpWidget(const SalsaMixerApp());
+    await tester.pumpAndSettle();
+
+    expect(find.text('567 Dance!'), findsOneWidget);
+    expect(find.text('Instrumentos'), findsOneWidget);
   });
 
   testWidgets('Voice count toggle interactions', (WidgetTester tester) async {
-    tester.view.physicalSize = const Size(1200, 2400);
-    tester.view.devicePixelRatio = 2.0;
+    setLargeTestScreen(tester);
     await tester.pumpWidget(const SalsaMixerApp());
 
     // Voice 1 starts active
