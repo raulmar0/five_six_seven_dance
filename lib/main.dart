@@ -20,12 +20,12 @@ void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   if (!kIsWeb) {
     FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  }
-  // Pre-load audio
-  await AudioEngine().loadBaseAssets();
-  if (!kIsWeb) {
+    await AudioEngine().loadBaseAssets();
     FlutterNativeSplash.remove();
   }
+  // On web, audio engine init is deferred to the first Play tap so the
+  // underlying WebAudio AudioContext is created inside a user gesture
+  // (required by iOS Safari).
   runApp(const SalsaMixerApp());
 }
 
@@ -43,8 +43,11 @@ class _SalsaMixerAppState extends State<SalsaMixerApp> {
     setState(() {
       _locale = Locale(languageCode);
     });
-    // Also load audio assets for the new language
-    AudioEngine().loadLanguageAssets(languageCode);
+    // On web, the engine isn't initialized until the first Play tap.
+    // `_ensureAudioReady()` will load the current language when that happens.
+    if (AudioEngine().isReady) {
+      AudioEngine().loadLanguageAssets(languageCode);
+    }
   }
 
   Route<void> _buildRoute(RouteSettings settings, Widget child) {
@@ -176,6 +179,15 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen>
   ];
 
   late Sequencer _sequencer;
+  bool _isPreparingAudio = false;
+
+  Future<void> _ensureAudioReady() async {
+    if (AudioEngine().isReady) return;
+    await AudioEngine().loadBaseAssets();
+    if (widget.currentLanguage != 'es') {
+      await AudioEngine().loadLanguageAssets(widget.currentLanguage);
+    }
+  }
 
   @override
   void initState() {
@@ -250,8 +262,15 @@ class _SalsaMixerScreenState extends State<SalsaMixerScreen>
                     TempoControlCard(
                       bpm: _currentBPM,
                       isPlaying: _isPlaying,
+                      isPreparing: _isPreparingAudio,
                       currentLanguage: widget.currentLanguage,
-                      onPlayPause: () {
+                      onPlayPause: () async {
+                        if (kIsWeb && !AudioEngine().isReady) {
+                          setState(() => _isPreparingAudio = true);
+                          await _ensureAudioReady();
+                          if (!mounted) return;
+                          setState(() => _isPreparingAudio = false);
+                        }
                         setState(() {
                           _isPlaying = !_isPlaying;
                           if (_isPlaying) {

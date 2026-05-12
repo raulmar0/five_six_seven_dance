@@ -82,6 +82,8 @@ class AudioEngine {
   final AudioBackend _backend;
   final int _maxPendingPlaybackTasks;
   bool _isInitialized = false;
+
+  bool get isReady => _isInitialized;
   int _pendingPlaybackTasks = 0;
   int _droppedPlaybackTasks = 0;
   DateTime? _lastBackpressureLogAt;

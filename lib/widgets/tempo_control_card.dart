@@ -6,6 +6,7 @@ import 'package:five_six_seven_dance/l10n/app_localizations.dart';
 class TempoControlCard extends StatelessWidget {
   final double bpm;
   final bool isPlaying;
+  final bool isPreparing;
   final String currentLanguage;
   final VoidCallback onPlayPause;
   final ValueChanged<double> onBpmChanged;
@@ -19,6 +20,7 @@ class TempoControlCard extends StatelessWidget {
     required this.onPlayPause,
     required this.onBpmChanged,
     required this.onLanguageChanged,
+    this.isPreparing = false,
   });
 
   @override
@@ -143,7 +145,7 @@ class TempoControlCard extends StatelessWidget {
                   const SizedBox(width: 12),
                   // Botón Play
                   GestureDetector(
-                    onTap: onPlayPause,
+                    onTap: isPreparing ? null : onPlayPause,
                     child: Container(
                       width: 52,
                       height: 52,
@@ -160,13 +162,26 @@ class TempoControlCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: Icon(
-                        isPlaying
-                            ? Icons.pause_rounded
-                            : Icons.play_arrow_rounded,
-                        color: AppColors.cardBackground,
-                        size: 32,
-                      ),
+                      child: isPreparing
+                          ? const Center(
+                              child: SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    AppColors.cardBackground,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Icon(
+                              isPlaying
+                                  ? Icons.pause_rounded
+                                  : Icons.play_arrow_rounded,
+                              color: AppColors.cardBackground,
+                              size: 32,
+                            ),
                     ),
                   ),
                 ],
